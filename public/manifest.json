@@ -1,0 +1,17 @@
+{
+  "name": "D&D Character Creator",
+  "short_name": "D&D Creator",
+  "description": "Créateur de personnages D&D 5e",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#dc2626",
+  "background_color": "#111827",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

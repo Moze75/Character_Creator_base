@@ -8,9 +8,8 @@ export const classes: DndClassData[] = [
     primaryAbility: ['Force', 'Dextérité'],
     savingThrows: ['Force', 'Constitution'],
     skillsToChoose: 2,
-    availableSkills: ['Acrobaties', 'Dressage', 'Athlétisme', 'Histoire', 'Intimidation', 'Perception', 'Survie'],
-    equipment: ['Armure de mailles', 'Bouclier', 'Épée longue', 'Javelines'],
-    features: ['Second souffle', 'Style de combat']
+    availableSkills: ['Acrobaties', 'Athlétisme', 'Histoire', 'Intimidation', 'Perception', 'Survie'],
+    equipment: ['Armure de mailles', 'Bouclier', 'Épée longue', 'Javelines']
   },
   {
     name: 'Magicien',
@@ -20,8 +19,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Intelligence', 'Sagesse'],
     skillsToChoose: 2,
     availableSkills: ['Arcanes', 'Histoire', 'Intuition', 'Investigation', 'Médecine', 'Religion'],
-    equipment: ['Dague', 'Focaliseur arcanique', 'Livre de sorts', 'Armure de cuir'],
-    features: ['Incantation', 'Restauration arcanique']
+    equipment: ['Dague', 'Focaliseur arcanique', 'Livre de sorts']
   },
   {
     name: 'Roublard',
@@ -31,8 +29,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Dextérité', 'Intelligence'],
     skillsToChoose: 4,
     availableSkills: ['Acrobaties', 'Athlétisme', 'Escamotage', 'Furtivité', 'Intimidation', 'Investigation', 'Perception', 'Persuasion', 'Perspicacité', 'Représentation', 'Tromperie'],
-    equipment: ['Armure de cuir', 'Dague', 'Rapière', 'Outils de voleur'],
-    features: ['Expertise', 'Attaque sournoise', 'Argot des voleurs']
+    equipment: ['Armure de cuir', 'Dague', 'Rapière', 'Outils de voleur']
   },
   {
     name: 'Clerc',
@@ -42,8 +39,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Sagesse', 'Charisme'],
     skillsToChoose: 2,
     availableSkills: ['Histoire', 'Intuition', 'Médecine', 'Persuasion', 'Religion'],
-    equipment: ['Armure de mailles', 'Bouclier', 'Masse d\'armes', 'Symbole sacré'],
-    features: ['Incantation', 'Canalisation d\'énergie divine']
+    equipment: ['Armure de mailles', 'Bouclier', 'Masse d’armes', 'Symbole sacré']
   },
   {
     name: 'Rôdeur',
@@ -52,9 +48,8 @@ export const classes: DndClassData[] = [
     primaryAbility: ['Dextérité', 'Sagesse'],
     savingThrows: ['Force', 'Dextérité'],
     skillsToChoose: 3,
-    availableSkills: ['Dressage', 'Athlétisme', 'Intuition', 'Investigation', 'Nature', 'Perception', 'Furtivité', 'Survie'],
-    equipment: ['Armure de cuir clouté', 'Épée courte', 'Arc long', 'Carquois'],
-    features: ['Ennemi juré', 'Explorateur né']
+    availableSkills: ['Athlétisme', 'Intuition', 'Investigation', 'Nature', 'Perception', 'Furtivité', 'Survie'],
+    equipment: ['Armure de cuir clouté', 'Épée courte', 'Arc long', 'Carquois']
   },
   {
     name: 'Barbare',
@@ -64,8 +59,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Force', 'Constitution'],
     skillsToChoose: 2,
     availableSkills: ['Dressage', 'Athlétisme', 'Intimidation', 'Nature', 'Perception', 'Survie'],
-    equipment: ['Hache à deux mains', 'Javelines', 'Armure de cuir', 'Sac d\'explorateur'],
-    features: ['Rage', 'Défense sans armure']
+    equipment: ['Hache à deux mains', 'Javelines', 'Armure de cuir', 'Sac d’explorateur']
   },
   {
     name: 'Barde',
@@ -75,8 +69,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Dextérité', 'Charisme'],
     skillsToChoose: 3,
     availableSkills: ['Arcanes', 'Athlétisme', 'Escamotage', 'Histoire', 'Investigation', 'Médecine', 'Nature', 'Perception', 'Représentation', 'Persuasion', 'Perspicacité', 'Furtivité', 'Survie', 'Tromperie'],
-    equipment: ['Armure de cuir', 'Rapière', 'Instrument de musique', 'Dague'],
-    features: ['Incantation', 'Inspiration bardique']
+    equipment: ['Armure de cuir', 'Rapière', 'Instrument de musique', 'Dague']
   },
   {
     name: 'Druide',
@@ -86,8 +79,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Intelligence', 'Sagesse'],
     skillsToChoose: 2,
     availableSkills: ['Arcanes', 'Dressage', 'Intuition', 'Médecine', 'Nature', 'Perception', 'Religion', 'Survie'],
-    equipment: ['Armure de cuir', 'Bouclier', 'Cimeterre', 'Focaliseur druidique'],
-    features: ['Incantation', 'Druidique']
+    equipment: ['Armure de cuir', 'Bouclier', 'Cimeterre', 'Focaliseur druidique']
   },
   {
     name: 'Moine',
@@ -97,8 +89,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Force', 'Dextérité'],
     skillsToChoose: 2,
     availableSkills: ['Acrobaties', 'Athlétisme', 'Histoire', 'Intuition', 'Religion', 'Furtivité'],
-    equipment: ['Dague', 'Fléchettes', 'Outils d\'artisan', 'Sac d\'explorateur'],
-    features: ['Arts martiaux', 'Défense sans armure']
+    equipment: ['Dague', 'Fléchettes', 'Outils d’artisan', 'Sac d’explorateur']
   },
   {
     name: 'Paladin',
@@ -108,8 +99,7 @@ export const classes: DndClassData[] = [
     savingThrows: ['Sagesse', 'Charisme'],
     skillsToChoose: 2,
     availableSkills: ['Athlétisme', 'Intimidation', 'Intuition', 'Médecine', 'Persuasion', 'Religion'],
-    equipment: ['Armure de mailles', 'Bouclier', 'Épée longue', 'Javelines'],
-    features: ['Sens divin', 'Imposition des mains']
+    equipment: ['Armure de mailles', 'Bouclier', 'Épée longue', 'Javelines']
   },
   {
     name: 'Ensorceleur',
@@ -119,18 +109,16 @@ export const classes: DndClassData[] = [
     savingThrows: ['Constitution', 'Charisme'],
     skillsToChoose: 2,
     availableSkills: ['Arcanes', 'Escamotage', 'Intuition', 'Intimidation', 'Persuasion', 'Religion'],
-    equipment: ['Dague', 'Focaliseur arcanique', 'Armure de cuir', 'Carreaux d\'arbalète'],
-    features: ['Incantation', 'Origine magique']
+    equipment: ['Dague', 'Focaliseur arcanique', 'Armure de cuir']
   },
   {
-    name: 'Sorcier',
+    name: 'Occultiste',
     description: 'Magicien qui a conclu un pacte avec une entité extraplanaire.',
     hitDie: 8,
     primaryAbility: ['Charisme'],
     savingThrows: ['Sagesse', 'Charisme'],
     skillsToChoose: 2,
     availableSkills: ['Arcanes', 'Escamotage', 'Histoire', 'Intimidation', 'Investigation', 'Nature', 'Religion'],
-    equipment: ['Armure de cuir', 'Dague', 'Arbalète légère', 'Focaliseur arcanique'],
-    features: ['Pacte occulte', 'Invocations occultes']
+    equipment: ['Armure de cuir', 'Dague', 'Arbalète légère', 'Focaliseur arcanique']
   }
 ];

@@ -28,7 +28,7 @@ export default function ClassSelection({ selectedClass, onClassSelect, onNext, o
       'Moine': <Zap className="w-5 h-5 text-orange-400" />,
       'Paladin': <Shield className="w-5 h-5 text-blue-500" />,
       'Ensorceleur': <Zap className="w-5 h-5 text-purple-500" />,
-      'Sorcier': <BookOpen className="w-5 h-5 text-purple-600" />
+      'Occultiste': <BookOpen className="w-5 h-5 text-purple-600" />
     };
     return iconMap[className] || <Sword className="w-5 h-5 text-gray-400" />;
   };
@@ -92,10 +92,10 @@ export default function ClassSelection({ selectedClass, onClassSelect, onNext, o
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-2">Capacités de classe</h4>
+                <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
                 <ul className="text-gray-300 text-sm space-y-1">
-                  {selectedClassData.features.map((feature, index) => (
-                    <li key={index}>• {feature}</li>
+                  {selectedClassData.equipment.map((item, index) => (
+                    <li key={index}>• {item}</li>
                   ))}
                 </ul>
               </div>

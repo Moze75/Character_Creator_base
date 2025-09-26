@@ -82,6 +82,7 @@ export default function CharacterCreationWizard() {
         current_hp: hitPoints,
         max_hp: hitPoints,
         class: selectedClass,
+        subclass: selectedSubclass,
         stats: {
           armor_class: armorClass,
           initiative: initiative,
@@ -154,7 +155,17 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-      case 2:
+    case 2:
+      return (
+        <SubclassSelection
+          selectedClass={selectedClass as DndClass}
+          selectedSubclass={selectedSubclass}
+          onSubclassSelect={setSelectedSubclass}
+          onNext={nextStep}
+          onPrevious={previousStep}
+        />
+      );  
+      case 3:
         return (
           <AbilityScores
             abilities={abilities}
@@ -163,7 +174,7 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-      case 3:
+      case 4:
         return (
           <BackgroundSelection
             selectedBackground={selectedBackground}
@@ -172,7 +183,7 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-      case 4:
+      case 5:
         return (
           <CharacterSummary
             characterName={characterName}

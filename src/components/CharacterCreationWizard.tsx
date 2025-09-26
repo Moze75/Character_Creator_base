@@ -26,6 +26,7 @@ export default function CharacterCreationWizard() {
   const [characterName, setCharacterName] = useState('');
   const [selectedRace, setSelectedRace] = useState('');
   const [selectedClass, setSelectedClass] = useState<DndClass | ''>('');
+  const [selectedSubclass, setSelectedSubclass] = useState('');
   const [selectedBackground, setSelectedBackground] = useState('');
   const [abilities, setAbilities] = useState<Record<string, number>>({
     'Force': 8,

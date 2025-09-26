@@ -88,7 +88,7 @@ export default function SubclassSelection({
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-white mb-2">Description complète</h4>
+                <h4 className="font-medium text-white mb-2">Description </h4>
                 <p className="text-gray-300 text-sm">{selectedSubclassData.description}</p>
               </div>
               <div>

@@ -217,7 +217,7 @@ export default function CharacterSummary({
           <CardHeader>
             <div className="flex items-center">
               <Users className="w-5 h-5 text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Traits raciaux</h3>
+              <h3 className="text-lg font-semibold text-white">Traits </h3>
             </div>
           </CardHeader>
           <CardContent>

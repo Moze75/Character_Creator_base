@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import ProgressBar from './ui/ProgressBar';
 import RaceSelection from './steps/RaceSelection';
@@ -27,6 +27,7 @@ export default function CharacterCreationWizard() {
   const [selectedRace, setSelectedRace] = useState('');
   const [selectedClass, setSelectedClass] = useState<DndClass | ''>('');
   const [selectedBackground, setSelectedBackground] = useState('');
+  const [selectedBackgroundEquipment, setSelectedBackgroundEquipment] = useState<'A' | 'B' | ''>('');
   const [abilities, setAbilities] = useState<Record<string, number>>({
     'Force': 8,
     'Dextérité': 8,
@@ -35,18 +36,8 @@ export default function CharacterCreationWizard() {
     'Sagesse': 8,
     'Charisme': 8
   });
-  // Scores finaux (base + historique), renvoyés par AbilityScores
   const [effectiveAbilities, setEffectiveAbilities] = useState<Record<string, number>>(abilities);
 
-  // Nouveau: compétences choisies pour la CLASSE (normalisées)
-  const [selectedClassSkills, setSelectedClassSkills] = useState<string[]>([]);
-
-  // Réinitialiser les compétences choisies quand la classe change
-  useEffect(() => {
-    setSelectedClassSkills([]);
-  }, [selectedClass]);
-
-  // Résoudre l'objet d'historique sélectionné
   const selectedBackgroundObj = useMemo(
     () => backgrounds.find(b => b.name === selectedBackground) || null,
     [selectedBackground]
@@ -67,7 +58,6 @@ export default function CharacterCreationWizard() {
   const handleFinish = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         toast.error('Vous devez être connecté pour créer un personnage');
         return;
@@ -76,15 +66,10 @@ export default function CharacterCreationWizard() {
       const raceData = races.find(r => r.name === selectedRace);
       const classData = classes.find(c => c.name === selectedClass);
 
-      // Partir des scores finaux (déjà incluant l’historique)
       const finalAbilities = { ...effectiveAbilities };
-      
-      // Appliquer les bonus raciaux si présents
       if (raceData && raceData.abilityScoreIncrease) {
         Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
-          if (finalAbilities[ability] != null) {
-            finalAbilities[ability] += bonus;
-          }
+          if (finalAbilities[ability] != null) finalAbilities[ability] += bonus;
         });
       }
 
@@ -92,17 +77,69 @@ export default function CharacterCreationWizard() {
       const armorClass = calculateArmorClass(finalAbilities['Dextérité'] || 10);
       const initiative = calculateModifier(finalAbilities['Dextérité'] || 10);
 
+      // Optionnel: inclure l'équipement d'historique dans la payload
+      const backgroundEquipList =
+        selectedBackgroundObj && selectedBackgroundEquipment
+          ? selectedBackgroundEquipment === 'A'
+            ? selectedBackgroundObj.equipmentOptions.optionA
+            : selectedBackgroundObj.equipmentOptions.optionB
+          : [];
+
       const characterData = {
-        // ... (identique à avant)
-        // Pour la démonstration, on ne stocke pas encore selectedClassSkills dans la DB,
-        // mais vous pouvez l'ajouter si besoin (nouvelle colonne).
+        user_id: user.id,
+        name: characterName,
+        level: 1,
+        current_hp: hitPoints,
+        max_hp: hitPoints,
+        class: selectedClass,
+        subclass: null,
+        stats: {
+          armor_class: armorClass,
+          initiative: initiative,
+          speed: raceData?.speed || 30,
+          proficiency_bonus: 2,
+          inspirations: 0
+        },
+        abilities: {
+          strength: finalAbilities['Force'] || 10,
+          dexterity: finalAbilities['Dextérité'] || 10,
+          constitution: finalAbilities['Constitution'] || 10,
+          intelligence: finalAbilities['Intelligence'] || 10,
+          wisdom: finalAbilities['Sagesse'] || 10,
+          charisma: finalAbilities['Charisme'] || 10
+        },
+        equipment: {
+          race: selectedRace,
+          background: selectedBackground,
+          background_equipment: backgroundEquipList,
+          starting_equipment: classData?.equipment || []
+        },
+        created_at: new Date().toISOString()
       };
 
-      // TODO: Insérer la structure complète comme avant si vous avez gardé la table `players`.
-      // Ce bloc est dégagé ici pour se concentrer sur l'ajout des compétences cliquables.
+      const { error } = await supabase.from('players').insert([characterData]);
 
-      toast.success('Personnage prêt à être créé (démo compétences).');
-
+      if (error) {
+        console.error('Error creating character:', error);
+        toast.error('Erreur lors de la création du personnage');
+      } else {
+        toast.success('Personnage créé avec succès !');
+        // Reset
+        setCurrentStep(0);
+        setCharacterName('');
+        setSelectedRace('');
+        setSelectedClass('');
+        setSelectedBackground('');
+        setSelectedBackgroundEquipment('');
+        setAbilities({
+          'Force': 8, 'Dextérité': 8, 'Constitution': 8,
+          'Intelligence': 8, 'Sagesse': 8, 'Charisme': 8
+        });
+        setEffectiveAbilities({
+          'Force': 8, 'Dextérité': 8, 'Constitution': 8,
+          'Intelligence': 8, 'Sagesse': 8, 'Charisme': 8
+        });
+      }
     } catch (error) {
       console.error('Error creating character:', error);
       toast.error('Erreur lors de la création du personnage');
@@ -124,17 +161,23 @@ export default function CharacterCreationWizard() {
           <ClassSelection
             selectedClass={selectedClass}
             onClassSelect={setSelectedClass}
-            selectedSkills={selectedClassSkills}
-            onSelectedSkillsChange={setSelectedClassSkills}
+            // Si vous avez la sélection des compétences de classe, passez les props ici
             onNext={nextStep}
             onPrevious={previousStep}
+            selectedSkills={[]}
+            onSelectedSkillsChange={() => {}}
           />
         );
       case 2:
         return (
           <BackgroundSelection
             selectedBackground={selectedBackground}
-            onBackgroundSelect={setSelectedBackground}
+            onBackgroundSelect={(name) => {
+              setSelectedBackground(name);
+              setSelectedBackgroundEquipment(''); // reset au changement
+            }}
+            selectedBackgroundEquipment={selectedBackgroundEquipment}
+            onBackgroundEquipmentSelect={setSelectedBackgroundEquipment}
             onNext={nextStep}
             onPrevious={previousStep}
           />
@@ -158,8 +201,8 @@ export default function CharacterCreationWizard() {
             selectedRace={selectedRace}
             selectedClass={selectedClass as DndClass}
             selectedBackground={selectedBackground}
+            selectedBackgroundEquipment={selectedBackgroundEquipment}
             abilities={effectiveAbilities}
-            selectedClassSkills={selectedClassSkills}
             onFinish={handleFinish}
             onPrevious={previousStep}
           />
@@ -178,7 +221,6 @@ export default function CharacterCreationWizard() {
           duration: 4000,
         }}
       />
-      
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">

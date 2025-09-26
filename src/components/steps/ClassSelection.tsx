@@ -12,7 +12,7 @@ interface ClassSelectionProps {
   onNext: () => void;
   onPrevious: () => void;
 
-  // Désormais optionnels pour éviter les crashes si non branchés depuis le Wizard
+  // Rendez-les bien présents depuis le Wizard pour que les clics aient un effet
   selectedSkills?: string[];
   onSelectedSkillsChange?: (skills: string[]) => void;
 }
@@ -22,8 +22,8 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
   onClassSelect,
   onNext,
   onPrevious,
-  selectedSkills = [],                // fallback sûr
-  onSelectedSkillsChange = () => {},  // no-op sûr
+  selectedSkills = [],
+  onSelectedSkillsChange = () => {},
 }) => {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -86,7 +86,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
     }
 
     // Ne pas dépasser la limite
-    if (selectedSkills.length >= limit) return;
+    if ((selectedSkills?.length || 0) >= limit) return;
 
     set.add(skill);
     onSelectedSkillsChange(Array.from(set));
@@ -107,7 +107,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
           const imageSrc = imageBase ? `/${imageBase}.png` : null;
 
           const limit = dndClass.skillsToChoose ?? 0;
-          const chosenCount = selectedClass === dndClass.name ? (selectedSkills?.length || 0) : 0;
+          const chosenCount = isSelected ? (selectedSkills?.length || 0) : 0;
 
           return (
             <Card
@@ -164,18 +164,17 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-white">Compétences disponibles</h4>
                         <span className="text-xs text-gray-400">
-                          {selectedClass === dndClass.name ? chosenCount : 0}/{limit} sélectionnées
+                          {isSelected ? chosenCount : 0}/{limit} sélectionnées
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {(dndClass.availableSkills ?? []).map((raw, idx) => {
                           const label = normalizeSkill(raw);
-                          const isChecked =
-                            selectedClass === dndClass.name && selectedSkills?.includes(label);
+                          const canToggle = isSelected; // on ne coche que sur la classe sélectionnée
+                          const isChecked = isSelected && selectedSkills?.includes(label);
                           const disableCheck =
-                            selectedClass === dndClass.name &&
-                            !isChecked &&
-                            (selectedSkills?.length || 0) >= limit;
+                            !canToggle ||
+                            (!isChecked && (selectedSkills?.length || 0) >= limit);
 
                           return (
                             <button
@@ -190,6 +189,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                                 e.stopPropagation();
                                 if (!disableCheck) toggleSkill(raw, limit);
                               }}
+                              aria-disabled={disableCheck}
                             >
                               {isChecked ? (
                                 <CheckSquare className="w-4 h-4 text-red-400 shrink-0" />

@@ -33,9 +33,29 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
       'Moine': <Zap className="w-5 h-5 text-orange-400" />,
       'Paladin': <Shield className="w-5 h-5 text-blue-500" />,
       'Ensorceleur': <Zap className="w-5 h-5 text-purple-500" />,
-      'Occultiste': <BookOpen className="w-5 h-5 text-purple-600" />
+      'Occultiste': <BookOpen className="w-5 h-5 text-purple-600" />,
+      // 'Sorcier' non présent dans vos données de classes à date
     };
     return iconMap[className] || <Sword className="w-5 h-5 text-gray-400" />;
+  };
+
+  // Map nom de classe -> nom de fichier (public/*.png)
+  const getImageBaseForClass = (className: DndClass): string | null => {
+    switch (className) {
+      case 'Guerrier': return 'Guerrier';
+      case 'Magicien': return 'Magicien';
+      case 'Roublard': return 'Voleur';     // image Voleur.png
+      case 'Clerc': return 'Clerc';
+      case 'Rôdeur': return 'Rodeur';       // image Rodeur.png (sans accent)
+      case 'Barbare': return 'Barbare';
+      case 'Barde': return 'Barde';
+      case 'Druide': return 'Druide';
+      case 'Moine': return 'Moine';
+      case 'Paladin': return 'Paladin';
+      case 'Ensorceleur': return 'Ensorceleur';
+      case 'Occultiste': return 'Occultiste';
+      default: return null;
+    }
   };
 
   return (
@@ -49,6 +69,8 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
         {classes.map((dndClass) => {
           const isSelected = selectedClass === dndClass.name;
           const isExpanded = expanded === dndClass.name;
+          const imageBase = getImageBaseForClass(dndClass.name);
+          const imageSrc = imageBase ? `/${imageBase}.png` : null;
 
           return (
             <Card
@@ -85,9 +107,21 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
                   </div>
                 </div>
 
-                {/* Détails dépliés dans la carte */}
+                {/* Déplié: image sous les 3 lignes, puis compétences/équipement/features */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
+                    {/* Image */}
+                    {imageSrc && (
+                      <div className="mb-4">
+                        <img
+                          src={imageSrc}
+                          alt={dndClass.name}
+                          className="w-full h-48 object-cover rounded-md border border-gray-700/60"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <h4 className="font-medium text-white mb-1">Compétences disponibles</h4>

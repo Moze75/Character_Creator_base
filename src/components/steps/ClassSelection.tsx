@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { classes } from '../../data/classes';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { Sword, Heart, Shield, Zap, BookOpen, ChevronDown } from 'lucide-react';
+import { Sword, Heart, Shield, Zap, BookOpen, ChevronDown, CheckSquare, Square } from 'lucide-react';
 import { DndClass } from '../../types/character';
+import { normalizeSkill } from '../../data/skills';
 
 interface ClassSelectionProps {
   selectedClass: DndClass | '';
   onClassSelect: (dndClass: DndClass) => void;
   onNext: () => void;
   onPrevious: () => void;
+
+  // Nouveau: compétences choisies pour la classe (normalisées)
+  selectedSkills: string[];
+  onSelectedSkillsChange: (skills: string[]) => void;
 }
 
-const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassSelect, onNext, onPrevious }) => {
+const ClassSelection: React.FC<ClassSelectionProps> = ({
+  selectedClass,
+  onClassSelect,
+  onNext,
+  onPrevious,
+  selectedSkills,
+  onSelectedSkillsChange,
+}) => {
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const selectedClassData = useMemo(
+    () => classes.find((c) => c.name === selectedClass),
+    [selectedClass]
+  );
 
   const handleClick = (className: DndClass) => {
     onClassSelect(className);
@@ -57,6 +74,24 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
     }
   };
 
+  const toggleSkill = (rawSkill: string, limit: number) => {
+    const skill = normalizeSkill(rawSkill);
+    const set = new Set(selectedSkills);
+    const already = set.has(skill);
+
+    if (already) {
+      set.delete(skill);
+      onSelectedSkillsChange(Array.from(set));
+      return;
+    }
+
+    // Ne pas dépasser la limite
+    if (selectedSkills.length >= limit) return;
+
+    set.add(skill);
+    onSelectedSkillsChange(Array.from(set));
+  };
+
   return (
     <div className="wizard-step space-y-6">
       <div className="text-center">
@@ -70,6 +105,9 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
           const isExpanded = expanded === dndClass.name;
           const imageBase = getImageBaseForClass(dndClass.name);
           const imageSrc = imageBase ? `/${imageBase}.png` : null;
+
+          const limit = dndClass.skillsToChoose ?? 0;
+          const chosenCount = selectedClass === dndClass.name ? selectedSkills.length : 0;
 
           return (
             <Card
@@ -106,10 +144,9 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
                   </div>
                 </div>
 
-                {/* Déplié: image sous les 3 lignes, puis compétences/équipement/features */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
-                    {/* Image non rognée: la carte s'ajuste à la hauteur */}
+                    {/* Image */}
                     {imageSrc && (
                       <div className="mb-4">
                         <img
@@ -121,39 +158,71 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
                       </div>
                     )}
 
-                    <div className="grid grid-cols-1 gap-4">
-                      <div>
-                        <h4 className="font-medium text-white mb-1">Compétences disponibles</h4>
-                        <p className="text-gray-300 text-sm mb-2">
-                          Choisissez {dndClass.skillsToChoose} compétence(s) parmi :
-                        </p>
-                        <ul className="text-gray-300 text-sm space-y-1 max-h-28 overflow-y-auto pr-1">
-                          {dndClass.availableSkills.map((skill, index) => (
-                            <li key={index}>• {skill}</li>
-                          ))}
-                        </ul>
+                    {/* Choix des compétences (checkboxes) */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-white">Compétences disponibles</h4>
+                        <span className="text-xs text-gray-400">
+                          {selectedClass === dndClass.name ? chosenCount : 0}/{limit} sélectionnées
+                        </span>
                       </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {dndClass.availableSkills.map((raw, idx) => {
+                          const label = normalizeSkill(raw);
+                          const isChecked =
+                            selectedClass === dndClass.name && selectedSkills.includes(label);
+                          const disableCheck =
+                            selectedClass === dndClass.name &&
+                            !isChecked &&
+                            selectedSkills.length >= limit;
 
-                      <div>
-                        <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
-                        <ul className="text-gray-300 text-sm space-y-1">
-                          {dndClass.equipment.map((item, index) => (
-                            <li key={index}>• {item}</li>
-                          ))}
-                        </ul>
+                          return (
+                            <button
+                              type="button"
+                              key={`${raw}-${idx}`}
+                              className={`flex items-center justify-start gap-2 px-3 py-2 rounded-md border text-left ${
+                                isChecked
+                                  ? 'border-red-500/60 bg-red-900/20 text-gray-100'
+                                  : 'border-gray-700 bg-gray-800/50 text-gray-300 hover:bg-gray-800'
+                              } ${disableCheck ? 'opacity-60 cursor-not-allowed' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!disableCheck) toggleSkill(raw, limit);
+                              }}
+                            >
+                              {isChecked ? (
+                                <CheckSquare className="w-4 h-4 text-red-400 shrink-0" />
+                              ) : (
+                                <Square className="w-4 h-4 text-gray-400 shrink-0" />
+                              )}
+                              <span className="text-sm">{label}</span>
+                            </button>
+                          );
+                        })}
                       </div>
-
-                      {Array.isArray(dndClass.features) && dndClass.features.length > 0 && (
-                        <div>
-                          <h4 className="font-medium text-white mb-2">Capacités de classe (niveau 1)</h4>
-                          <ul className="text-gray-300 text-sm space-y-1">
-                            {dndClass.features.map((feat, index) => (
-                              <li key={index}>• {feat}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                     </div>
+
+                    {/* Équipement */}
+                    <div className="mb-4">
+                      <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
+                      <ul className="text-gray-300 text-sm space-y-1">
+                        {dndClass.equipment.map((item, index) => (
+                          <li key={index}>• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Capacités de classe */}
+                    {Array.isArray(dndClass.features) && dndClass.features.length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Capacités de classe (niveau 1)</h4>
+                        <ul className="text-gray-300 text-sm space-y-1">
+                          {dndClass.features.map((feat, index) => (
+                            <li key={index}>• {feat}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>

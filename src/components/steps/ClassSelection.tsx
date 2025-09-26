@@ -33,8 +33,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
       'Moine': <Zap className="w-5 h-5 text-orange-400" />,
       'Paladin': <Shield className="w-5 h-5 text-blue-500" />,
       'Ensorceleur': <Zap className="w-5 h-5 text-purple-500" />,
-      'Occultiste': <BookOpen className="w-5 h-5 text-purple-600" />,
-      // 'Sorcier' non présent dans vos données de classes à date
+      'Occultiste': <BookOpen className="w-5 h-5 text-purple-600" />
     };
     return iconMap[className] || <Sword className="w-5 h-5 text-gray-400" />;
   };
@@ -110,13 +109,13 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({ selectedClass, onClassS
                 {/* Déplié: image sous les 3 lignes, puis compétences/équipement/features */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
-                    {/* Image */}
+                    {/* Image non rognée: la carte s'ajuste à la hauteur */}
                     {imageSrc && (
                       <div className="mb-4">
                         <img
                           src={imageSrc}
                           alt={dndClass.name}
-                          className="w-full h-48 object-cover rounded-md border border-gray-700/60"
+                          className="block w-full h-auto rounded-md border border-gray-700/60"
                           loading="lazy"
                         />
                       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { backgrounds } from '../../data/backgrounds';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { BookOpen, Users, Zap } from 'lucide-react';
+import { BookOpen, Users, Zap, Star, Wrench } from 'lucide-react';
 
 interface BackgroundSelectionProps {
   selectedBackground: string;
@@ -42,12 +42,14 @@ export default function BackgroundSelection({ selectedBackground, onBackgroundSe
                   <Users className="w-4 h-4 mr-2 text-green-400" />
                   <span>Compétences: {background.skillProficiencies.join(', ')}</span>
                 </div>
-                {background.languages > 0 && (
-                  <div className="flex items-center text-sm text-gray-400">
-                    <Zap className="w-4 h-4 mr-2 text-purple-400" />
-                    <span>Langues: {background.languages}</span>
-                  </div>
-                )}
+                <div className="flex items-center text-sm text-gray-400">
+                  <Star className="w-4 h-4 mr-2 text-yellow-400" />
+                  <span>Don: {background.feat}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-400">
+                  <Wrench className="w-4 h-4 mr-2 text-orange-400" />
+                  <span>Outils: {background.toolProficiencies.join(', ')}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -62,16 +64,33 @@ export default function BackgroundSelection({ selectedBackground, onBackgroundSe
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-white mb-2">Capacité spéciale</h4>
-                <p className="text-gray-300 text-sm">{selectedBackgroundData.feature}</p>
+                <h4 className="font-medium text-white mb-2">Caractéristiques privilégiées</h4>
+                <p className="text-gray-300 text-sm">{selectedBackgroundData.abilityScores.join(', ')}</p>
+              </div>
+              <div>
+                <h4 className="font-medium text-white mb-2">Don</h4>
+                <p className="text-gray-300 text-sm">{selectedBackgroundData.feat}</p>
               </div>
               <div>
                 <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
-                <ul className="text-gray-300 text-sm space-y-1">
-                  {selectedBackgroundData.equipment.map((item, index) => (
-                    <li key={index}>• {item}</li>
-                  ))}
-                </ul>
+                <div className="space-y-3">
+                  <div>
+                    <h5 className="text-sm font-medium text-white mb-1">Option A:</h5>
+                    <ul className="text-gray-300 text-sm space-y-1">
+                      {selectedBackgroundData.equipmentOptions.optionA.map((item, index) => (
+                        <li key={index}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium text-white mb-1">Option B:</h5>
+                    <ul className="text-gray-300 text-sm space-y-1">
+                      {selectedBackgroundData.equipmentOptions.optionB.map((item, index) => (
+                        <li key={index}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>

@@ -60,8 +60,8 @@ export default function CharacterCreationWizard() {
       const classData = classes.find(c => c.name === selectedClass);
       const finalAbilities = { ...abilities };
       
-      // Apply racial bonuses
-      if (raceData) {
+      // Apply racial bonuses - with proper null checking
+      if (raceData && raceData.abilityScoreIncrease) {
         Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
           if (finalAbilities[ability]) {
             finalAbilities[ability] += bonus;

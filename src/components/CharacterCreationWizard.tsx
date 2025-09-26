@@ -3,6 +3,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import ProgressBar from './ui/ProgressBar';
 import RaceSelection from './steps/RaceSelection';
 import ClassSelection from './steps/ClassSelection';
+import SubclassSelection from './steps/SubclassSelection';
 import AbilityScores from './steps/AbilityScores';
 import BackgroundSelection from './steps/BackgroundSelection';
 import CharacterSummary from './steps/CharacterSummary';

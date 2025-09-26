@@ -3,7 +3,6 @@ import { Toaster, toast } from 'react-hot-toast';
 import ProgressBar from './ui/ProgressBar';
 import RaceSelection from './steps/RaceSelection';
 import ClassSelection from './steps/ClassSelection';
-import SubclassSelection from './steps/SubclassSelection';
 import AbilityScores from './steps/AbilityScores';
 import BackgroundSelection from './steps/BackgroundSelection';
 import CharacterSummary from './steps/CharacterSummary';
@@ -17,7 +16,6 @@ import { backgrounds } from '../data/backgrounds';
 const steps = [
   'Race',
   'Classe',
-  'Sous-classe',
   'Historique',
   'Caractéristiques',
   'Résumé'
@@ -28,7 +26,6 @@ export default function CharacterCreationWizard() {
   const [characterName, setCharacterName] = useState('');
   const [selectedRace, setSelectedRace] = useState('');
   const [selectedClass, setSelectedClass] = useState<DndClass | ''>('');
-  const [selectedSubclass, setSelectedSubclass] = useState('');
   const [selectedBackground, setSelectedBackground] = useState('');
   const [abilities, setAbilities] = useState<Record<string, number>>({
     'Force': 8,
@@ -38,7 +35,7 @@ export default function CharacterCreationWizard() {
     'Sagesse': 8,
     'Charisme': 8
   });
-  // Nouveau: conserver les scores finaux (base + historique), renvoyés par AbilityScores
+  // Scores finaux (base + historique), renvoyés par AbilityScores
   const [effectiveAbilities, setEffectiveAbilities] = useState<Record<string, number>>(abilities);
 
   // Résoudre l'objet d'historique sélectionné
@@ -94,7 +91,8 @@ export default function CharacterCreationWizard() {
         current_hp: hitPoints,
         max_hp: hitPoints,
         class: selectedClass,
-        subclass: selectedSubclass,
+        // sous-classe retirée au niveau 1
+        subclass: null,
         stats: {
           armor_class: armorClass,
           initiative: initiative,
@@ -132,7 +130,6 @@ export default function CharacterCreationWizard() {
         setCharacterName('');
         setSelectedRace('');
         setSelectedClass('');
-        setSelectedSubclass('');
         setSelectedBackground('');
         setAbilities({
           'Force': 8,
@@ -178,16 +175,6 @@ export default function CharacterCreationWizard() {
         );
       case 2:
         return (
-          <SubclassSelection
-            selectedClass={selectedClass as DndClass}
-            selectedSubclass={selectedSubclass}
-            onSubclassSelect={setSelectedSubclass}
-            onNext={nextStep}
-            onPrevious={previousStep}
-          />
-        );
-      case 3:
-        return (
           <BackgroundSelection
             selectedBackground={selectedBackground}
             onBackgroundSelect={setSelectedBackground}
@@ -195,7 +182,7 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-      case 4:
+      case 3:
         return (
           <AbilityScores
             abilities={abilities}
@@ -206,7 +193,7 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-      case 5:
+      case 4:
         return (
           <CharacterSummary
             characterName={characterName}
@@ -238,10 +225,10 @@ export default function CharacterCreationWizard() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">
-              Créez votre personnage
+              Créateur de Personnage D&D
             </h1>
             <p className="text-gray-400">
-              Choisissez vite mais choisissez bien !
+              Créez votre héros pour vos aventures dans les Donjons et Dragons
             </p>
           </div>
 

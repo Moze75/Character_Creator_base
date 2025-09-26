@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { backgrounds } from '../../data/backgrounds';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { Users, BookOpen, Star, Wrench, Zap, ChevronDown } from 'lucide-react';
+import { Users, BookOpen, Star, Wrench, Zap, ChevronDown, CheckCircle, Circle } from 'lucide-react';
 
 interface BackgroundSelectionProps {
   selectedBackground: string;
   onBackgroundSelect: (background: string) => void;
   onNext: () => void;
   onPrevious: () => void;
+
+  // Nouveau: choix d'équipement (Option A ou B)
+  selectedBackgroundEquipment?: 'A' | 'B' | '';
+  onBackgroundEquipmentSelect?: (option: 'A' | 'B') => void;
 }
 
 export default function BackgroundSelection({
   selectedBackground,
   onBackgroundSelect,
   onNext,
-  onPrevious
+  onPrevious,
+  selectedBackgroundEquipment = '',
+  onBackgroundEquipmentSelect
 }: BackgroundSelectionProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -23,6 +29,14 @@ export default function BackgroundSelection({
     onBackgroundSelect(name);
     setExpanded((prev) => (prev === name ? null : name));
   };
+
+  const handleChoose = (e: React.MouseEvent, option: 'A' | 'B') => {
+    e.stopPropagation();
+    onBackgroundEquipmentSelect?.(option);
+  };
+
+  const isOptionChosen = (name: string, option: 'A' | 'B') =>
+    selectedBackground === name && selectedBackgroundEquipment === option;
 
   return (
     <div className="wizard-step space-y-6">
@@ -86,24 +100,61 @@ export default function BackgroundSelection({
 
                       {bg.equipmentOptions && (
                         <div>
-                          <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                            <div>
-                              <div className="text-gray-400 mb-1">Option A</div>
-                              <ul className="text-gray-300 space-y-1">
+                          <h4 className="font-medium text-white mb-3">Équipement de départ</h4>
+
+                          {/* Choix A/B */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                              type="button"
+                              onClick={(e) => handleChoose(e, 'A')}
+                              className={`text-left p-3 rounded-md border transition-colors ${
+                                isOptionChosen(bg.name, 'A')
+                                  ? 'border-red-500/60 bg-red-900/20'
+                                  : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  {isOptionChosen(bg.name, 'A') ? (
+                                    <CheckCircle className="w-4 h-4 text-red-400" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-gray-400" />
+                                  )}
+                                  <span className="text-sm text-gray-200">Option A</span>
+                                </div>
+                              </div>
+                              <ul className="text-gray-300 text-sm space-y-1">
                                 {bg.equipmentOptions.optionA.map((item, i) => (
                                   <li key={i}>• {item}</li>
                                 ))}
                               </ul>
-                            </div>
-                            <div>
-                              <div className="text-gray-400 mb-1">Option B</div>
-                              <ul className="text-gray-300 space-y-1">
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => handleChoose(e, 'B')}
+                              className={`text-left p-3 rounded-md border transition-colors ${
+                                isOptionChosen(bg.name, 'B')
+                                  ? 'border-red-500/60 bg-red-900/20'
+                                  : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  {isOptionChosen(bg.name, 'B') ? (
+                                    <CheckCircle className="w-4 h-4 text-red-400" />
+                                  ) : (
+                                    <Circle className="w-4 h-4 text-gray-400" />
+                                  )}
+                                  <span className="text-sm text-gray-200">Option B</span>
+                                </div>
+                              </div>
+                              <ul className="text-gray-300 text-sm space-y-1">
                                 {bg.equipmentOptions.optionB.map((item, i) => (
                                   <li key={i}>• {item}</li>
                                 ))}
                               </ul>
-                            </div>
+                            </button>
                           </div>
                         </div>
                       )}
@@ -122,7 +173,7 @@ export default function BackgroundSelection({
         </Button>
         <Button
           onClick={onNext}
-          disabled={!selectedBackground}
+          disabled={!selectedBackground || !selectedBackgroundEquipment}
           size="lg"
           className="min-w-[200px]"
         >

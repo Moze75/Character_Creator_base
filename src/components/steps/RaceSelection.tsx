@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { races } from '../../data/races';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { Users, Zap, Shield, Star } from 'lucide-react';
+import { Users, Zap, Shield, Star, ChevronDown } from 'lucide-react';
 
 interface RaceSelectionProps {
   selectedRace: string;
@@ -11,7 +11,12 @@ interface RaceSelectionProps {
 }
 
 export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: RaceSelectionProps) {
-  const selectedRaceData = races.find(r => r.name === selectedRace);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const handleClick = (raceName: string) => {
+    onRaceSelect(raceName);
+    setExpanded((prev) => (prev === raceName ? null : raceName));
+  };
 
   return (
     <div className="wizard-step space-y-6">
@@ -21,72 +26,90 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {races.map((race) => (
-          <Card
-            key={race.name}
-            selected={selectedRace === race.name}
-            onClick={() => onRaceSelect(race.name)}
-            className="h-full"
-          >
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">{race.name}</h3>
-                <Users className="w-5 h-5 text-red-400" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300 text-sm mb-3">{race.description}</p>
-              <div className="space-y-2">
-                <div className="flex items-center text-sm text-gray-400">
-                  <Zap className="w-4 h-4 mr-2 text-yellow-400" />
-                  <span>Vitesse: {race.speed} ft</span>
+        {races.map((race) => {
+          const isSelected = selectedRace === race.name;
+          const isExpanded = expanded === race.name;
+
+          return (
+            <Card
+              key={race.name}
+              selected={isSelected}
+              onClick={() => handleClick(race.name)}
+              className="h-full"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">{race.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-red-400" />
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center text-sm text-gray-400">
-                  <Shield className="w-4 h-4 mr-2 text-blue-400" />
-                  <span>Taille: {race.size}</span>
-                </div>
-                {/* Afficher les langues à la place des bonus de caractéristiques */}
-                {race.languages && race.languages.length > 0 && (
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300 text-sm mb-3">{race.description}</p>
+                <div className="space-y-2">
                   <div className="flex items-center text-sm text-gray-400">
-                    <Star className="w-4 h-4 mr-2 text-green-400" />
-                    <span>Langues: {race.languages.slice(0, 2).join(', ')}{race.languages.length > 2 ? '...' : ''}</span>
+                    <Zap className="w-4 h-4 mr-2 text-yellow-400" />
+                    <span>Vitesse: {race.speed} ft</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-400">
+                    <Shield className="w-4 h-4 mr-2 text-blue-400" />
+                    <span>Taille: {race.size}</span>
+                  </div>
+                  {race.languages && race.languages.length > 0 && (
+                    <div className="flex items-center text-sm text-gray-400">
+                      <Star className="w-4 h-4 mr-2 text-green-400" />
+                      <span>
+                        Langues: {race.languages.slice(0, 2).join(', ')}
+                        {race.languages.length > 2 ? '...' : ''}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Détails dépliés dans la carte */}
+                {isExpanded && (
+                  <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Langues</h4>
+                        <p className="text-gray-300 text-sm">
+                          {race.languages && race.languages.length > 0
+                            ? race.languages.join(', ')
+                            : '—'}
+                        </p>
+                      </div>
+
+                      {race.proficiencies && race.proficiencies.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-white mb-2">Compétences</h4>
+                          <p className="text-gray-300 text-sm">
+                            {race.proficiencies.join(', ')}
+                          </p>
+                        </div>
+                      )}
+
+                      {race.traits && race.traits.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-white mb-2">Traits raciaux</h4>
+                          <ul className="text-gray-300 text-sm space-y-1">
+                            {race.traits.map((trait, index) => (
+                              <li key={index}>• {trait}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
-
-      {selectedRaceData && (
-        <Card className="animate-fade-in">
-          <CardHeader>
-            <h3 className="text-lg font-semibold text-white">{selectedRaceData.name} - Détails</h3>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-white mb-2">Langues</h4>
-                <p className="text-gray-300 text-sm">{selectedRaceData.languages.join(', ')}</p>
-              </div>
-              {selectedRaceData.proficiencies && selectedRaceData.proficiencies.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-white mb-2">Compétences</h4>
-                  <p className="text-gray-300 text-sm">{selectedRaceData.proficiencies.join(', ')}</p>
-                </div>
-              )}
-              <div className="md:col-span-2">
-                <h4 className="font-medium text-white mb-2">Traits raciaux</h4>
-                <ul className="text-gray-300 text-sm space-y-1">
-                  {selectedRaceData.traits.map((trait, index) => (
-                    <li key={index}>• {trait}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="flex justify-center pt-6">
         <Button

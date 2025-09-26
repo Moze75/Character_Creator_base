@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Button from '../ui/Button';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Input from '../ui/Input';
@@ -15,22 +15,89 @@ interface CharacterSummaryProps {
   selectedRace: string;
   selectedClass: DndClass;
   selectedBackground: string;
-  selectedBackgroundEquipmentOption: 'A' | 'B' | '';
   abilities: Record<string, number>;
   onFinish: () => void;
   onPrevious: () => void;
+
+  // Optionnel: compétences choisies dans ClassSelection (si vous avez branché cette étape)
+  selectedClassSkills?: string[];
+
+  // Optionnel: si vous avez ajouté la sélection A/B d'équipement d'historique
+  selectedBackgroundEquipmentOption?: 'A' | 'B' | '';
 }
+
+// Liste canonique des compétences (FR)
+const ALL_SKILLS = [
+  'Acrobaties',
+  'Athlétisme',
+  'Arcanes',
+  'Histoire',
+  'Intuition',
+  'Investigation',
+  'Médecine',
+  'Nature',
+  'Perception',
+  'Représentation',
+  'Persuasion',
+  'Tromperie',
+  'Intimidation',
+  'Escamotage',
+  'Discrétion',
+  'Survie',
+  'Dressage',
+  'Religion',
+] as const;
+
+type SkillName = typeof ALL_SKILLS[number];
+
+// Synonymes -> Canonique pour le calcul
+const SKILL_SYNONYMS: Record<string, SkillName> = {
+  'Furtivité': 'Discrétion',
+  'Perspicacité': 'Intuition',
+  'Performance': 'Représentation',
+};
+
+function normalizeSkill(name: string): SkillName | string {
+  const direct = ALL_SKILLS.find((s) => s.toLowerCase() === name.toLowerCase());
+  if (direct) return direct;
+  const synKey = Object.keys(SKILL_SYNONYMS).find((k) => k.toLowerCase() === name.toLowerCase());
+  if (synKey) return SKILL_SYNONYMS[synKey];
+  return name; // si inconnu, on le laisse tel quel
+}
+
+// Map compétence -> caractéristique
+const SKILL_ABILITY_MAP: Record<SkillName, keyof Record<string, number>> = {
+  'Acrobaties': 'Dextérité',
+  'Athlétisme': 'Force',
+  'Arcanes': 'Intelligence',
+  'Histoire': 'Intelligence',
+  'Intuition': 'Sagesse',
+  'Investigation': 'Intelligence',
+  'Médecine': 'Sagesse',
+  'Nature': 'Intelligence',
+  'Perception': 'Sagesse',
+  'Représentation': 'Charisme',
+  'Persuasion': 'Charisme',
+  'Tromperie': 'Charisme',
+  'Intimidation': 'Charisme',
+  'Escamotage': 'Dextérité',
+  'Discrétion': 'Dextérité',
+  'Survie': 'Sagesse',
+  'Dressage': 'Sagesse',
+  'Religion': 'Intelligence',
+};
 
 export default function CharacterSummary({ 
   characterName, 
   onCharacterNameChange, 
   selectedRace, 
   selectedClass, 
-  selectedBackground,
-  selectedBackgroundEquipmentOption,
+  selectedBackground, 
   abilities, 
   onFinish, 
-  onPrevious 
+  onPrevious,
+  selectedClassSkills = [],
+  selectedBackgroundEquipmentOption = '',
 }: CharacterSummaryProps) {
   const [nameError, setNameError] = useState('');
 
@@ -38,22 +105,38 @@ export default function CharacterSummary({
   const classData = classes.find(c => c.name === selectedClass);
   const backgroundData = backgrounds.find(b => b.name === selectedBackground);
 
-  const finalAbilities = { ...abilities };
-  
-  // Apply racial bonuses - with null check
-  if (raceData && raceData.abilityScoreIncrease) {
-    Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
-      if (finalAbilities[ability]) {
-        finalAbilities[ability] += bonus;
-      }
-    });
-  }
+  // Caracs finales = base + bonus historique déjà appliqués en amont
+  // On ajoute ici les bonus raciaux
+  const finalAbilities = useMemo(() => {
+    const fa = { ...abilities };
+    if (raceData?.abilityScoreIncrease) {
+      Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
+        if (fa[ability] != null) fa[ability] += bonus;
+      });
+    }
+    return fa;
+  }, [abilities, raceData]);
 
   const hitPoints = calculateHitPoints(finalAbilities['Constitution'] || 10, selectedClass);
   const armorClass = calculateArmorClass(finalAbilities['Dextérité'] || 10);
   const initiative = calculateModifier(finalAbilities['Dextérité'] || 10);
 
-  // Récupération de l’équipement d’historique selon l’option choisie
+  // Maîtrises: union des compétences de classe sélectionnées + de l'historique
+  const backgroundSkills = useMemo<string[]>(() => {
+    const arr = backgroundData?.skillProficiencies ?? [];
+    return Array.from(new Set(arr.map((s) => String(normalizeSkill(s)))));
+  }, [backgroundData]);
+
+  const proficientSet = useMemo<Set<string>>(() => {
+    const set = new Set<string>();
+    selectedClassSkills.forEach((s) => set.add(String(normalizeSkill(s))));
+    backgroundSkills.forEach((s) => set.add(String(normalizeSkill(s))));
+    return set;
+  }, [selectedClassSkills, backgroundSkills]);
+
+  const proficiencyBonus = 2; // niveau 1
+
+  // Équipement historique (si vous avez défini equipmentOptions dans backgrounds)
   const bgEquip =
     selectedBackgroundEquipmentOption === 'A'
       ? backgroundData?.equipmentOptions?.optionA ?? []
@@ -68,6 +151,15 @@ export default function CharacterSummary({
     }
     setNameError('');
     onFinish();
+  };
+
+  // Calcul du bonus de compétence
+  const getSkillBonus = (skillLabel: SkillName): number => {
+    const abilityKey = SKILL_ABILITY_MAP[skillLabel] || 'Dextérité';
+    const score = finalAbilities[abilityKey] ?? 10;
+    const mod = Math.floor((score - 10) / 2);
+    const proficient = proficientSet.has(skillLabel);
+    return mod + (proficient ? proficiencyBonus : 0);
   };
 
   return (
@@ -147,11 +239,9 @@ export default function CharacterSummary({
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Zap className="w-5 h-5 text-yellow-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Caractéristiques</h3>
-            </div>
+          <div className="flex items-center">
+            <Zap className="w-5 h-5 text-yellow-400 mr-2" />
+            <h3 className="text-lg font-semibold text-white">Caractéristiques</h3>
           </div>
         </CardHeader>
         <CardContent>
@@ -167,6 +257,36 @@ export default function CharacterSummary({
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Synthèse des compétences */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center">
+            <Users className="w-5 h-5 text-purple-400 mr-2" />
+            <h3 className="text-lg font-semibold text-white">Compétences</h3>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-gray-400 mb-3">
+            Bonus de maîtrise: +{proficiencyBonus} | Maîtrises: classe + historique
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
+            {ALL_SKILLS.map((skill) => {
+              const bonus = getSkillBonus(skill);
+              const proficient = proficientSet.has(skill);
+              const sign = bonus >= 0 ? '+' : '';
+              return (
+                <div key={skill} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-300">
+                    {skill} {proficient && <span className="text-xs text-red-400">[M]</span>}
+                  </span>
+                  <span className="text-white font-medium">{sign}{bonus}</span>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -217,7 +337,7 @@ export default function CharacterSummary({
         </Card>
       </div>
 
-      {/* Équipement de départ (classe + historique) */}
+      {/* Équipement de départ (classe + historique, si applicable) */}
       <Card>
         <CardHeader>
           <div className="flex items-center">

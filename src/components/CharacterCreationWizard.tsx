@@ -166,20 +166,20 @@ export default function CharacterCreationWizard() {
           onPrevious={previousStep}
         />
       );  
-      case 3:
+       case 3:
         return (
-          <AbilityScores
-            abilities={abilities}
-            onAbilitiesChange={setAbilities}
+          <BackgroundSelection
+            selectedBackground={selectedBackground}
+            onBackgroundSelect={setSelectedBackground}
             onNext={nextStep}
             onPrevious={previousStep}
           />
         );
       case 4:
         return (
-          <BackgroundSelection
-            selectedBackground={selectedBackground}
-            onBackgroundSelect={setSelectedBackground}
+          <AbilityScores
+            abilities={abilities}
+            onAbilitiesChange={setAbilities}
             onNext={nextStep}
             onPrevious={previousStep}
           />

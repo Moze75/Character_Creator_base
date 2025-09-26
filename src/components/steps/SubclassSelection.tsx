@@ -92,7 +92,7 @@ export default function SubclassSelection({
                 <p className="text-gray-300 text-sm">{selectedSubclassData.description}</p>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-2">Classe parente</h4>
+                <h4 className="font-medium text-white mb-2">Classe </h4>
                 <p className="text-gray-300 text-sm">{selectedSubclassData.class}</p>
               </div>
               <div className="bg-gray-800/50 rounded-lg p-4">

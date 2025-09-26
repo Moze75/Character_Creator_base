@@ -13,6 +13,12 @@ interface RaceSelectionProps {
 export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: RaceSelectionProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  // Conversion pieds -> mètres (arrondi au 0,5 m)
+  const feetToMeters = (ft?: number) => {
+    if (!ft && ft !== 0) return '';
+    return Math.round(ft * 0.3048 * 2) / 2;
+  };
+
   const handleClick = (raceName: string) => {
     onRaceSelect(raceName);
     setExpanded((prev) => (prev === raceName ? null : raceName));
@@ -53,7 +59,7 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                 <div className="space-y-2">
                   <div className="flex items-center text-sm text-gray-400">
                     <Zap className="w-4 h-4 mr-2 text-yellow-400" />
-                    <span>Vitesse: {race.speed} ft</span>
+                    <span>Vitesse: {feetToMeters(race.speed)} m</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-400">
                     <Shield className="w-4 h-4 mr-2 text-blue-400" />
@@ -70,16 +76,13 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                   )}
                 </div>
 
-                {/* Détails dépliés dans la carte */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <h4 className="font-medium text-white mb-2">Langues</h4>
                         <p className="text-gray-300 text-sm">
-                          {race.languages && race.languages.length > 0
-                            ? race.languages.join(', ')
-                            : '—'}
+                          {race.languages && race.languages.length > 0 ? race.languages.join(', ') : '—'}
                         </p>
                       </div>
 

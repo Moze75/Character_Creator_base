@@ -83,3 +83,51 @@ export function rollAbilityScore(): number {
   rolls.sort((a, b) => b - a);
   return rolls.slice(0, 3).reduce((sum, roll) => sum + roll, 0);
 }
+
+/**
+ * Application des bonus d'historique aux caractéristiques de base
+ * - mode 'oneOneOne': +1 à chacune des 3 caracs autorisées par le background
+ * - mode 'twoPlusOne': +2 sur une carac autorisée, +1 sur une autre carac autorisée (différente)
+ */
+export type BackgroundBonusMode = 'twoPlusOne' | 'oneOneOne';
+
+export function applyBackgroundBonuses(
+  base: Record<string, number>,
+  backgroundAbilities: string[],
+  mode: BackgroundBonusMode,
+  assignments?: { plusTwo?: string; plusOne?: string }
+): Record<string, number> {
+  const result: Record<string, number> = { ...base };
+
+  if (!backgroundAbilities || backgroundAbilities.length !== 3) {
+    // Rien à appliquer si le background ne définit pas correctement ses 3 caracs
+    return result;
+  }
+
+  if (mode === 'oneOneOne') {
+    for (const ability of backgroundAbilities) {
+      result[ability] = (result[ability] ?? 0) + 1;
+    }
+    return result;
+  }
+
+  // mode twoPlusOne
+  const plusTwo = assignments?.plusTwo;
+  const plusOne = assignments?.plusOne;
+
+  // Besoin de deux caracs distinctes, toutes deux autorisées par le background
+  if (
+    !plusTwo ||
+    !plusOne ||
+    plusTwo === plusOne ||
+    !backgroundAbilities.includes(plusTwo) ||
+    !backgroundAbilities.includes(plusOne)
+  ) {
+    return result;
+  }
+
+  result[plusTwo] = (result[plusTwo] ?? 0) + 2;
+  result[plusOne] = (result[plusOne] ?? 0) + 1;
+
+  return result;
+}

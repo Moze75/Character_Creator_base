@@ -3,92 +3,110 @@ import { DndRace } from '../types/character';
 export const races: DndRace[] = [
   {
     name: 'Humain',
-    description: 'Polyvalents et ambitieux, les humains sont l\'une des races les plus courantes.',
-    abilityScoreIncrease: { 'Force': 1, 'Dextérité': 1, 'Constitution': 1, 'Intelligence': 1, 'Sagesse': 1, 'Charisme': 1 },
+    description: 'Polyvalents et adaptables, les humains se distinguent par leur ambition.',
+    size: 'Moyen ou Petit',
+    speed: 30,
+    languages: ['Commun', 'Au choix'],
+    proficiencies: [],
+    traits: ['Compétent (maîtrise d’une compétence)', 'Ingénieux (inspiration héroïque après repos long)', 'Don d’origine (au choix)']
+  },
+  {
+    name: 'Elfe',
+    description: 'Gracieux et proches de la magie, les elfes vivent en harmonie avec la nature.',
+    size: 'Moyen',
+    speed: 30,
+    languages: ['Commun', 'Au choix'],
+    proficiencies: ['Perception'],
+    traits: ['Vision dans le noir (18 m)', 'Ascendance féerique (avantage contre Charmé)', 'Transe (repos long en 4h)', 'Lignage elfique (sorts selon la lignée)']
+  },
+  {
+    name: 'Demi-Elfe',
+    description: 'Nés de l’union entre humain et elfe, ils naviguent entre deux mondes.',
+    size: 'Moyen',
+    speed: 30,
+    languages: ['Commun', 'Au choix'],
+    proficiencies: ['Une compétence au choix'],
+    traits: ['Vision dans le noir (18 m)', 'Ascendance féerique (avantage contre Charmé)', 'Ingénieux (inspiration héroïque après repos long)', 'Lignage elfique (sorts selon la lignée)']
+  },
+  {
+    name: 'Nain',
+    description: 'Robustes et endurants, les nains sont d’excellents artisans et combattants.',
     size: 'Moyen',
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Compétence supplémentaire', 'Don supplémentaire']
-  },
-  {
-    name: 'Elfe',
-    description: 'Gracieux et magiques, les elfes vivent en harmonie avec la nature.',
-    abilityScoreIncrease: { 'Dextérité': 2 },
-    size: 'Moyen',
-    speed: 30,
-    languages: ['Commun', 'Elfique'],
-    proficiencies: ['Perception'],
-    traits: ['Vision dans le noir', 'Ascendance féerique', 'Transe']
-  },
-  {
-    name: 'Nain',
-    description: 'Robustes et déterminés, les nains sont des artisans et guerriers redoutables.',
-    abilityScoreIncrease: { 'Constitution': 2 },
-    size: 'Moyen',
-    speed: 25,
-    languages: ['Commun', 'Nain'],
-    proficiencies: ['Haches de guerre', 'Marteaux de guerre'],
-    traits: ['Vision dans le noir', 'Résistance naine', 'Connaissance de la pierre']
+    traits: ['Vision dans le noir (36 m)', 'Résistance naine (avantage contre poison)', 'Connaissance de la pierre', 'Ténacité naine (+1 pv par niveau)']
   },
   {
     name: 'Halfelin',
-    description: 'Petits mais courageux, les halfelins sont connus pour leur chance.',
-    abilityScoreIncrease: { 'Dextérité': 2 },
+    description: 'Petits mais courageux, les halfelins sont réputés pour leur chance.',
     size: 'Petit',
     speed: 25,
-    languages: ['Commun', 'Halfelin'],
+    languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Chanceux', 'Brave', 'Agilité halfeline']
+    traits: ['Chanceux (relance les 1)', 'Brave (avantage contre Effrayé)', 'Agilité halfeline', 'Discrétion naturelle']
   },
   {
     name: 'Drakéide',
-    description: 'Descendants des dragons, ils possèdent des pouvoirs draconiques.',
-    abilityScoreIncrease: { 'Force': 2, 'Charisme': 1 },
+    description: 'Descendants des dragons, les drakéides possèdent des pouvoirs draconiques.',
     size: 'Moyen',
     speed: 30,
-    languages: ['Commun', 'Draconique'],
+    languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Ascendance draconique', 'Souffle destructeur', 'Résistance aux dégâts']
+    traits: ['Ascendance draconique (choix du type de dragon)', 'Souffle draconique (1d10 → évolutif)', 'Résistance draconique', 'Vol draconique (niv 5, repos long)']
   },
   {
     name: 'Gnome',
-    description: 'Petits et curieux, les gnomes excellent dans la magie et la technologie.',
-    abilityScoreIncrease: { 'Intelligence': 2 },
+    description: 'Petits et curieux, les gnomes excellent dans la magie et l’ingéniosité.',
     size: 'Petit',
-    speed: 25,
-    languages: ['Commun', 'Gnome'],
+    speed: 30,
+    languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir', 'Ruse gnome', 'Communication avec les petites bêtes']
+    traits: ['Vision dans le noir (18 m)', 'Ruse gnome (avantage aux JS mentaux)', 'Lignage gnome (forêt ou roches, sorts associés)']
   },
   {
-    name: 'Demi-Elfe',
-    description: 'Mélange d\'humain et d\'elfe, ils naviguent entre deux mondes.',
-    abilityScoreIncrease: { 'Charisme': 2 },
+    name: 'Orc',
+    description: 'Fiers et puissants, les orcs sont marqués par leur force et leur ténacité.',
     size: 'Moyen',
     speed: 30,
-    languages: ['Commun', 'Elfique', 'Au choix'],
-    proficiencies: ['2 compétences au choix'],
-    traits: ['Vision dans le noir', 'Ascendance féerique', 'Polyvalence']
+    languages: ['Commun', 'Au choix'],
+    proficiencies: [],
+    traits: ['Vision dans le noir (36 m)', 'Acharnement (rester à 1 pv 1/long rest)', 'Poussée d’adrénaline (points de vie temporaires + déplacement, selon bonus de maîtrise)']
   },
   {
     name: 'Demi-Orc',
-    description: 'Força et sauvagerie, les demi-orcs luttent pour trouver leur place.',
-    abilityScoreIncrease: { 'Force': 2, 'Constitution': 1 },
+    description: 'Issus de l’union d’humains et d’orcs, ils héritent d’une grande endurance.',
     size: 'Moyen',
     speed: 30,
-    languages: ['Commun', 'Orc'],
+    languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir', 'Endurance implacable', 'Attaques sauvages']
+    traits: ['Vision dans le noir (36 m)', 'Acharnement (rester à 1 pv 1/long rest)', 'Ingénieux (inspiration héroïque après repos long)']
   },
   {
     name: 'Tieffelin',
-    description: 'Marqués par un héritage infernal, ils portent le fardeau de leur ascendance.',
-    abilityScoreIncrease: { 'Intelligence': 1, 'Charisme': 2 },
-    size: 'Moyen',
+    description: 'Marqués par un héritage infernal, les tieffelins portent en eux la magie des enfers.',
+    size: 'Moyen ou Petit',
     speed: 30,
-    languages: ['Commun', 'Infernal'],
+    languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir', 'Résistance infernale', 'Héritage infernal']
+    traits: ['Vision dans le noir (18 m)', 'Héritage fiélon (Infernal, Abyssal ou Chtonien, sorts associés)', 'Présence d’outre-monde (thaumaturgie)']
+  },
+  {
+    name: 'Aasimar',
+    description: 'Descendants des plans célestes, porteurs de lumière et de puissance divine.',
+    size: 'Moyen ou Petit',
+    speed: 30,
+    languages: ['Commun', 'Au choix'],
+    proficiencies: [],
+    traits: ['Vision dans le noir (18 m)', 'Mains guérisseuses (soins, repos long)', 'Résistance céleste (radiant & nécrotique)', 'Porte-lumière (lumière)', 'Révélation céleste (ailes, linceul, radiance)']
+  },
+  {
+    name: 'Goliath',
+    description: 'Descendants des géants, les goliaths possèdent une puissance colossale.',
+    size: 'Moyen (grands)',
+    speed: 35,
+    languages: ['Commun', 'Au choix'],
+    proficiencies: [],
+    traits: ['Ascendance gigantesque (choix de pouvoir lié aux géants)', 'Vision dans le noir (18 m)', 'Forme de géant (niv 5, 1/long rest)', 'Forte carrure (capacité de charge accrue)']
   }
 ];

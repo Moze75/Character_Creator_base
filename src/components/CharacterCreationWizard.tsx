@@ -228,7 +228,7 @@ export default function CharacterCreationWizard() {
               Créez votre personnage
             </h1>
             <p className="text-gray-400">
-              Choissiez vite mais choisissez bien !
+              Choisissez vite mais choisissez bien !
             </p>
           </div>
 

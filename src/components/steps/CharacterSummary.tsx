@@ -32,13 +32,18 @@ export default function CharacterSummary({
 }: CharacterSummaryProps) {
   const [nameError, setNameError] = useState('');
 
+  // Conversion pieds -> mètres (arrondi au 0,5 m)
+  const feetToMeters = (ft?: number) => {
+    if (!ft && ft !== 0) return '';
+    return Math.round(ft * 0.3048 * 2) / 2;
+  };
+
   const raceData = races.find(r => r.name === selectedRace);
   const classData = classes.find(c => c.name === selectedClass);
   const backgroundData = backgrounds.find(b => b.name === selectedBackground);
 
   const finalAbilities = { ...abilities };
   
-  // Apply racial bonuses - with null check
   if (raceData && raceData.abilityScoreIncrease) {
     Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
       if (finalAbilities[ability]) {
@@ -129,7 +134,9 @@ export default function CharacterSummary({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Vitesse:</span>
-              <span className="text-white font-medium">{raceData?.speed || 30} ft</span>
+              <span className="text-white font-medium">
+                {feetToMeters(raceData?.speed || 30)} m
+              </span>
             </div>
           </CardContent>
         </Card>

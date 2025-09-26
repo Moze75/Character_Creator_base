@@ -2,41 +2,39 @@ import React, { useState } from 'react';
 import { backgrounds } from '../../data/backgrounds';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { Users, BookOpen, Star, Wrench, Zap, ChevronDown, CheckCircle, Circle } from 'lucide-react';
+import { BookOpen, Star, Wrench, Zap, ChevronDown, CheckCircle2, Circle } from 'lucide-react';
 
 interface BackgroundSelectionProps {
   selectedBackground: string;
   onBackgroundSelect: (background: string) => void;
+
+  // Rendus optionnels pour éviter les erreurs si non encore branchés depuis le Wizard
+  selectedEquipmentOption?: 'A' | 'B' | '';
+  onEquipmentOptionChange?: (opt: 'A' | 'B' | '') => void;
+
   onNext: () => void;
   onPrevious: () => void;
-
-  // Nouveau: choix d'équipement (Option A ou B)
-  selectedBackgroundEquipment?: 'A' | 'B' | '';
-  onBackgroundEquipmentSelect?: (option: 'A' | 'B') => void;
 }
 
 export default function BackgroundSelection({
   selectedBackground,
   onBackgroundSelect,
+  selectedEquipmentOption = '',          // fallback sûr
+  onEquipmentOptionChange = () => {},    // no-op sûr
   onNext,
-  onPrevious,
-  selectedBackgroundEquipment = '',
-  onBackgroundEquipmentSelect
+  onPrevious
 }: BackgroundSelectionProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const handleClick = (name: string) => {
+    const isSame = selectedBackground === name;
     onBackgroundSelect(name);
     setExpanded((prev) => (prev === name ? null : name));
+    if (!isSame) {
+      // reset le choix d’équipement si on change d’historique
+      onEquipmentOptionChange('');
+    }
   };
-
-  const handleChoose = (e: React.MouseEvent, option: 'A' | 'B') => {
-    e.stopPropagation();
-    onBackgroundEquipmentSelect?.(option);
-  };
-
-  const isOptionChosen = (name: string, option: 'A' | 'B') =>
-    selectedBackground === name && selectedBackgroundEquipment === option;
 
   return (
     <div className="wizard-step space-y-6">
@@ -90,75 +88,72 @@ export default function BackgroundSelection({
                 {/* Détails dépliés dans la carte */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
-                    <div className="grid grid-cols-1 gap-4">
-                      {bg.feat && (
-                        <div>
-                          <h4 className="font-medium text-white mb-2">Don</h4>
-                          <p className="text-gray-300 text-sm">{bg.feat}</p>
+                    {/* Sélecteur d’option d’équipement A/B */}
+                    {bg.equipmentOptions && (
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-white">Équipement de départ</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {/* Option A */}
+                          <button
+                            type="button"
+                            className={`text-left rounded-md border p-3 transition-colors ${
+                              selectedEquipmentOption === 'A'
+                                ? 'border-red-500/70 bg-red-900/20'
+                                : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEquipmentOptionChange('A');
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              {selectedEquipmentOption === 'A' ? (
+                                <CheckCircle2 className="w-4 h-4 text-red-400" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-gray-400" />
+                              )}
+                              <span className="text-sm text-gray-200">Option A</span>
+                            </div>
+                            <ul className="text-gray-300 text-sm space-y-1">
+                              {bg.equipmentOptions.optionA.map((item, i) => (
+                                <li key={`A-${i}`}>• {item}</li>
+                              ))}
+                            </ul>
+                          </button>
+
+                          {/* Option B */}
+                          <button
+                            type="button"
+                            className={`text-left rounded-md border p-3 transition-colors ${
+                              selectedEquipmentOption === 'B'
+                                ? 'border-red-500/70 bg-red-900/20'
+                                : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEquipmentOptionChange('B');
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              {selectedEquipmentOption === 'B' ? (
+                                <CheckCircle2 className="w-4 h-4 text-red-400" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-gray-400" />
+                              )}
+                              <span className="text-sm text-gray-200">Option B</span>
+                            </div>
+                            <ul className="text-gray-300 text-sm space-y-1">
+                              {bg.equipmentOptions.optionB.map((item, i) => (
+                                <li key={`B-${i}`}>• {item}</li>
+                              ))}
+                            </ul>
+                          </button>
                         </div>
-                      )}
-
-                      {bg.equipmentOptions && (
-                        <div>
-                          <h4 className="font-medium text-white mb-3">Équipement de départ</h4>
-
-                          {/* Choix A/B */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <button
-                              type="button"
-                              onClick={(e) => handleChoose(e, 'A')}
-                              className={`text-left p-3 rounded-md border transition-colors ${
-                                isOptionChosen(bg.name, 'A')
-                                  ? 'border-red-500/60 bg-red-900/20'
-                                  : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  {isOptionChosen(bg.name, 'A') ? (
-                                    <CheckCircle className="w-4 h-4 text-red-400" />
-                                  ) : (
-                                    <Circle className="w-4 h-4 text-gray-400" />
-                                  )}
-                                  <span className="text-sm text-gray-200">Option A</span>
-                                </div>
-                              </div>
-                              <ul className="text-gray-300 text-sm space-y-1">
-                                {bg.equipmentOptions.optionA.map((item, i) => (
-                                  <li key={i}>• {item}</li>
-                                ))}
-                              </ul>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={(e) => handleChoose(e, 'B')}
-                              className={`text-left p-3 rounded-md border transition-colors ${
-                                isOptionChosen(bg.name, 'B')
-                                  ? 'border-red-500/60 bg-red-900/20'
-                                  : 'border-gray-700 bg-gray-800/50 hover:bg-gray-800'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  {isOptionChosen(bg.name, 'B') ? (
-                                    <CheckCircle className="w-4 h-4 text-red-400" />
-                                  ) : (
-                                    <Circle className="w-4 h-4 text-gray-400" />
-                                  )}
-                                  <span className="text-sm text-gray-200">Option B</span>
-                                </div>
-                              </div>
-                              <ul className="text-gray-300 text-sm space-y-1">
-                                {bg.equipmentOptions.optionB.map((item, i) => (
-                                  <li key={i}>• {item}</li>
-                                ))}
-                              </ul>
-                            </button>
-                          </div>
+                        <div className="text-xs text-gray-400">
+                          Choisissez une option pour continuer.
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -173,7 +168,7 @@ export default function BackgroundSelection({
         </Button>
         <Button
           onClick={onNext}
-          disabled={!selectedBackground || !selectedBackgroundEquipment}
+          disabled={!selectedBackground || !selectedEquipmentOption}
           size="lg"
           className="min-w-[200px]"
         >

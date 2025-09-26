@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import ProgressBar from './ui/ProgressBar';
 import RaceSelection from './steps/RaceSelection';
@@ -12,13 +12,14 @@ import { supabase } from '../lib/supabase';
 import { calculateHitPoints, calculateArmorClass, calculateModifier } from '../utils/dndCalculations';
 import { races } from '../data/races';
 import { classes } from '../data/classes';
+import { backgrounds } from '../data/backgrounds';
 
 const steps = [
   'Race',
   'Classe',
   'Sous-classe',
-  'Caractéristiques',
   'Historique',
+  'Caractéristiques',
   'Résumé'
 ];
 
@@ -37,6 +38,14 @@ export default function CharacterCreationWizard() {
     'Sagesse': 8,
     'Charisme': 8
   });
+  // Nouveau: conserver les scores finaux (base + historique), renvoyés par AbilityScores
+  const [effectiveAbilities, setEffectiveAbilities] = useState<Record<string, number>>(abilities);
+
+  // Résoudre l'objet d'historique sélectionné
+  const selectedBackgroundObj = useMemo(
+    () => backgrounds.find(b => b.name === selectedBackground) || null,
+    [selectedBackground]
+  );
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
@@ -61,12 +70,14 @@ export default function CharacterCreationWizard() {
 
       const raceData = races.find(r => r.name === selectedRace);
       const classData = classes.find(c => c.name === selectedClass);
-      const finalAbilities = { ...abilities };
+
+      // Partir des scores finaux (déjà incluant l’historique)
+      const finalAbilities = { ...effectiveAbilities };
       
-      // Apply racial bonuses - with proper null checking
+      // Appliquer les bonus raciaux si présents
       if (raceData && raceData.abilityScoreIncrease) {
         Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
-          if (finalAbilities[ability]) {
+          if (finalAbilities[ability] != null) {
             finalAbilities[ability] += bonus;
           }
         });
@@ -121,8 +132,17 @@ export default function CharacterCreationWizard() {
         setCharacterName('');
         setSelectedRace('');
         setSelectedClass('');
+        setSelectedSubclass('');
         setSelectedBackground('');
         setAbilities({
+          'Force': 8,
+          'Dextérité': 8,
+          'Constitution': 8,
+          'Intelligence': 8,
+          'Sagesse': 8,
+          'Charisme': 8
+        });
+        setEffectiveAbilities({
           'Force': 8,
           'Dextérité': 8,
           'Constitution': 8,
@@ -156,17 +176,17 @@ export default function CharacterCreationWizard() {
             onPrevious={previousStep}
           />
         );
-    case 2:
-      return (
-        <SubclassSelection
-          selectedClass={selectedClass as DndClass}
-          selectedSubclass={selectedSubclass}
-          onSubclassSelect={setSelectedSubclass}
-          onNext={nextStep}
-          onPrevious={previousStep}
-        />
-      );  
-       case 3:
+      case 2:
+        return (
+          <SubclassSelection
+            selectedClass={selectedClass as DndClass}
+            selectedSubclass={selectedSubclass}
+            onSubclassSelect={setSelectedSubclass}
+            onNext={nextStep}
+            onPrevious={previousStep}
+          />
+        );
+      case 3:
         return (
           <BackgroundSelection
             selectedBackground={selectedBackground}
@@ -180,6 +200,8 @@ export default function CharacterCreationWizard() {
           <AbilityScores
             abilities={abilities}
             onAbilitiesChange={setAbilities}
+            selectedBackground={selectedBackgroundObj}
+            onEffectiveAbilitiesChange={setEffectiveAbilities}
             onNext={nextStep}
             onPrevious={previousStep}
           />
@@ -192,7 +214,7 @@ export default function CharacterCreationWizard() {
             selectedRace={selectedRace}
             selectedClass={selectedClass as DndClass}
             selectedBackground={selectedBackground}
-            abilities={abilities}
+            abilities={effectiveAbilities}
             onFinish={handleFinish}
             onPrevious={previousStep}
           />

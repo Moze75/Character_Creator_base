@@ -45,10 +45,11 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                   <Shield className="w-4 h-4 mr-2 text-blue-400" />
                   <span>Taille: {race.size}</span>
                 </div>
-                {Object.keys(race.abilityScoreIncrease).length > 0 && (
+                {/* Afficher les langues à la place des bonus de caractéristiques */}
+                {race.languages && race.languages.length > 0 && (
                   <div className="flex items-center text-sm text-gray-400">
                     <Star className="w-4 h-4 mr-2 text-green-400" />
-                    <span>Bonus: {Object.entries(race.abilityScoreIncrease).map(([ability, bonus]) => `${ability} +${bonus}`).join(', ')}</span>
+                    <span>Langues: {race.languages.slice(0, 2).join(', ')}{race.languages.length > 2 ? '...' : ''}</span>
                   </div>
                 )}
               </div>
@@ -68,7 +69,13 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                 <h4 className="font-medium text-white mb-2">Langues</h4>
                 <p className="text-gray-300 text-sm">{selectedRaceData.languages.join(', ')}</p>
               </div>
-              <div>
+              {selectedRaceData.proficiencies && selectedRaceData.proficiencies.length > 0 && (
+                <div>
+                  <h4 className="font-medium text-white mb-2">Compétences</h4>
+                  <p className="text-gray-300 text-sm">{selectedRaceData.proficiencies.join(', ')}</p>
+                </div>
+              )}
+              <div className="md:col-span-2">
                 <h4 className="font-medium text-white mb-2">Traits raciaux</h4>
                 <ul className="text-gray-300 text-sm space-y-1">
                   {selectedRaceData.traits.map((trait, index) => (

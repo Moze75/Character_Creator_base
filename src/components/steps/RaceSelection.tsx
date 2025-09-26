@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { races } from '../../data/races';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Button from '../ui/Button';
-import { Users, Zap, Shield, Star, ChevronDown } from 'lucide-react';
+import { Users, Zap, Shield, Star, ChevronDown, Eye, Heart } from 'lucide-react';
 
 interface RaceSelectionProps {
   selectedRace: string;
@@ -13,7 +13,7 @@ interface RaceSelectionProps {
 export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: RaceSelectionProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  // Conversion pieds -> mètres (arrondi au 0,5 m)
+  // Conversion pieds -> mètres (les données sont déjà en pieds dans le nouveau système)
   const feetToMeters = (ft?: number) => {
     if (!ft && ft !== 0) return '';
     return Math.round(ft * 0.3048 * 2) / 2;
@@ -22,6 +22,44 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
   const handleClick = (raceName: string) => {
     onRaceSelect(raceName);
     setExpanded((prev) => (prev === raceName ? null : raceName));
+  };
+
+  const getRaceIcon = (raceName: string) => {
+    if (raceName === 'Elfe' || raceName === 'Demi-Elfe') {
+      return <Star className="w-5 h-5 text-green-400" />;
+    }
+    if (raceName === 'Nain') {
+      return <Shield className="w-5 h-5 text-orange-400" />;
+    }
+    if (raceName === 'Halfelin') {
+      return <Heart className="w-5 h-5 text-yellow-400" />;
+    }
+    if (raceName === 'Drakéide') {
+      return <Zap className="w-5 h-5 text-red-400" />;
+    }
+    if (raceName === 'Gnome') {
+      return <Star className="w-5 h-5 text-purple-400" />;
+    }
+    if (raceName.includes('Orc')) {
+      return <Shield className="w-5 h-5 text-red-500" />;
+    }
+    if (raceName === 'Tieffelin') {
+      return <Zap className="w-5 h-5 text-purple-500" />;
+    }
+    if (raceName === 'Aasimar') {
+      return <Star className="w-5 h-5 text-blue-300" />;
+    }
+    if (raceName === 'Goliath') {
+      return <Shield className="w-5 h-5 text-gray-400" />;
+    }
+    if (raceName === 'Humain') {
+      return <Users className="w-5 h-5 text-blue-400" />;
+    }
+    return <Users className="w-5 h-5 text-gray-400" />;
+  };
+
+  const hasVisionInDark = (traits: string[]) => {
+    return traits.some(trait => trait.includes('Vision dans le noir'));
   };
 
   return (
@@ -47,7 +85,7 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">{race.name}</h3>
                   <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-red-400" />
+                    {getRaceIcon(race.name)}
                     <ChevronDown
                       className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                     />
@@ -65,6 +103,12 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
                     <Shield className="w-4 h-4 mr-2 text-blue-400" />
                     <span>Taille: {race.size}</span>
                   </div>
+                  {hasVisionInDark(race.traits) && (
+                    <div className="flex items-center text-sm text-gray-400">
+                      <Eye className="w-4 h-4 mr-2 text-purple-400" />
+                      <span>Vision dans le noir</span>
+                    </div>
+                  )}
                   {race.languages && race.languages.length > 0 && (
                     <div className="flex items-center text-sm text-gray-400">
                       <Star className="w-4 h-4 mr-2 text-green-400" />
@@ -97,12 +141,29 @@ export default function RaceSelection({ selectedRace, onRaceSelect, onNext }: Ra
 
                       {race.traits && race.traits.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-white mb-2">Traits </h4>
-                          <ul className="text-gray-300 text-sm space-y-1">
-                            {race.traits.map((trait, index) => (
-                              <li key={index}>• {trait}</li>
-                            ))}
-                          </ul>
+                          <h4 className="font-medium text-white mb-2">Traits raciaux</h4>
+                          <div className="max-h-32 overflow-y-auto">
+                            <ul className="text-gray-300 text-sm space-y-1">
+                              {race.traits.map((trait, index) => (
+                                <li key={index} className="leading-relaxed">• {trait}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          {/* Affichage des variantes disponibles */}
+                          {(race.name === 'Elfe' || race.name === 'Gnome' || race.name === 'Tieffelin') && (
+                            <div className="mt-3 p-3 bg-gray-800/50 rounded-lg border border-gray-600/30">
+                              <h5 className="text-xs font-medium text-gray-300 mb-2">Variantes disponibles :</h5>
+                              <p className="text-xs text-gray-400">
+                                {race.name === 'Elfe' && 'Haut-Elfe, Elfe Sylvestre, Drow'}
+                                {race.name === 'Gnome' && 'Gnome des Forêts, Gnome des Roches'}
+                                {race.name === 'Tieffelin' && 'Héritage Infernal, Abyssal, Chtonien'}
+                              </p>
+                              <p className="text-xs text-gray-500 italic mt-1">
+                                Le choix de variante se fera dans l'interface du personnage
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

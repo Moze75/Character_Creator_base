@@ -7,8 +7,12 @@ export const races: DndRace[] = [
     size: 'Moyen ou Petit',
     speed: 30,
     languages: ['Commun', 'Au choix'],
-    proficiencies: [],
-    traits: ['Compétent (maîtrise d\'une compétence)', 'Ingénieux (inspiration héroïque après repos long)', 'Don d\'origine (au choix)']
+    proficiencies: ['Une compétence au choix'],
+    traits: [
+      'Compétent (maîtrise d\'une compétence)',
+      'Ingénieux (inspiration héroïque après repos long)',
+      'Don d\'origine (au choix)'
+    ]
   },
   {
     name: 'Elfe',
@@ -16,8 +20,13 @@ export const races: DndRace[] = [
     size: 'Moyen',
     speed: 30,
     languages: ['Commun', 'Au choix'],
-    proficiencies: ['Perception'],
-    traits: ['Vision dans le noir (18 m)', 'Ascendance féerique (avantage contre Charmé)', 'Transe (repos long en 4h)', 'Lignage elfique (sorts selon la lignée)']
+    proficiencies: ['Intuition, Perception ou Survie (au choix)'],
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Ascendance féerique (avantage contre Charmé)',
+      'Transe (repos long en 4h)',
+      'Lignage elfique (choix entre Haut elfe, Elfe sylvestre ou Drow avec sorts et capacités associés)'
+    ]
   },
   {
     name: 'Demi-Elfe',
@@ -25,8 +34,13 @@ export const races: DndRace[] = [
     size: 'Moyen',
     speed: 30,
     languages: ['Commun', 'Au choix'],
-    proficiencies: ['Une compétence au choix'],
-    traits: ['Vision dans le noir (18 m)', 'Ascendance féerique (avantage contre Charmé)', 'Ingénieux (inspiration héroïque après repos long)', 'Lignage elfique (sorts selon la lignée)']
+    proficiencies: ['Intuition, Perception ou Survie (au choix)'],
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Ascendance féerique (avantage contre Charmé)',
+      'Ingénieux (inspiration héroïque après repos long)',
+      'Lignage elfique (au choix entre Drow, Haut elfe, ou Elfe sylvestre)'
+    ]
   },
   {
     name: 'Nain',
@@ -35,16 +49,26 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (36 m)', 'Résistance naine (avantage contre poison)', 'Connaissance de la pierre', 'Ténacité naine (+1 pv par niveau)']
+    traits: [
+      'Vision dans le noir (36 m)',
+      'Résistance naine (avantage contre poison)',
+      'Connaissance de la pierre (Perception des vibrations)',
+      'Ténacité naine (+1 pv par niveau)'
+    ]
   },
   {
     name: 'Halfelin',
     description: 'Petits mais courageux, les halfelins sont réputés pour leur chance.',
     size: 'Petit',
-    speed: 25,
+    speed: 30, // 9 m = 30 pieds
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Chanceux (relance les 1)', 'Brave (avantage contre Effrayé)', 'Agilité halfeline', 'Discrétion naturelle']
+    traits: [
+      'Chanceux (relance les 1)',
+      'Brave (avantage contre Effrayé)',
+      'Agilité halfeline (déplacement dans l\'espace des grandes créatures)',
+      'Discrétion naturelle (action Furtivité à l\'ombre des grandes créatures)'
+    ]
   },
   {
     name: 'Drakéide',
@@ -53,7 +77,13 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Ascendance draconique (choix du type de dragon)', 'Souffle draconique (1d10 → évolutif)', 'Résistance draconique', 'Vol draconique (niv 5, repos long)']
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Ascendance draconique (choix du type de dragon)',
+      'Souffle draconique (1d10 → évolutif, utilisations = bonus de maîtrise)',
+      'Résistance draconique (selon type de dragon)',
+      'Vol draconique (niv 5, ailes spectrales 10 min, repos long)'
+    ]
   },
   {
     name: 'Gnome',
@@ -62,7 +92,11 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (18 m)', 'Ruse gnome (avantage aux JS mentaux)', 'Lignage gnome (forêt ou roches, sorts associés)']
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Ruse gnome (avantage aux JS mentaux)',
+      'Lignage gnome (choix entre Forêts ou Roches avec sorts et capacités associés)'
+    ]
   },
   {
     name: 'Orc',
@@ -71,7 +105,11 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (36 m)', 'Acharnement (rester à 1 pv 1/long rest)', 'Poussée d\'adrénaline (points de vie temporaires + déplacement, selon bonus de maîtrise)']
+    traits: [
+      'Vision dans le noir (36 m)',
+      'Acharnement (rester à 1 pv 1/long rest)',
+      'Poussée d\'adrénaline (PV temporaires + action Pointe, utilisations = bonus de maîtrise)'
+    ]
   },
   {
     name: 'Demi-Orc',
@@ -80,16 +118,24 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (36 m)', 'Acharnement (rester à 1 pv 1/long rest)', 'Ingénieux (inspiration héroïque après repos long)']
+    traits: [
+      'Vision dans le noir (36 m)',
+      'Acharnement (rester à 1 pv 1/long rest)',
+      'Ingénieux (inspiration héroïque après repos long)'
+    ]
   },
   {
     name: 'Tieffelin',
-    description: 'Marqués par un héritage infernal, les tieffelins portent en eux la magie des enfers.',
+    description: 'Marqués par un héritage fiélon, les tieffelins portent en eux la magie des plans inférieurs.',
     size: 'Moyen ou Petit',
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (18 m)', 'Héritage fiélon (Infernal, Abyssal ou Chtonien, sorts associés)', 'Présence d\'outre-monde (thaumaturgie)']
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Héritage fiélon (choix entre Infernal, Abyssal ou Chtonien avec sorts et résistances associés)',
+      'Présence d\'outre-monde (thaumaturgie)'
+    ]
   },
   {
     name: 'Aasimar',
@@ -98,7 +144,13 @@ export const races: DndRace[] = [
     speed: 30,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Vision dans le noir (18 m)', 'Mains guérisseuses (soins, repos long)', 'Résistance céleste (radiant & nécrotique)', 'Porte-lumière (lumière)', 'Révélation céleste (ailes, linceul, radiance)']
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Mains guérisseuses (soins = bonus de maîtrise en d4, repos long)',
+      'Résistance céleste (radiant & nécrotique)',
+      'Porte-lumière (lumière)',
+      'Révélation céleste (niv 3 : ailes, linceul nécrotique ou radiance, 1 min, repos long)'
+    ]
   },
   {
     name: 'Goliath',
@@ -107,6 +159,11 @@ export const races: DndRace[] = [
     speed: 35,
     languages: ['Commun', 'Au choix'],
     proficiencies: [],
-    traits: ['Ascendance gigantesque (choix de pouvoir lié aux géants)', 'Vision dans le noir (18 m)', 'Forme de géant (niv 5, 1/long rest)', 'Forte carrure (capacité de charge accrue)']
+    traits: [
+      'Vision dans le noir (18 m)',
+      'Ascendance gigantesque (choix parmi 6 pouvoirs de géants, utilisations = bonus de maîtrise)',
+      'Forme de géant (niv 5, taille G, 10 min, avantage Force, +3 m vitesse, repos long)',
+      'Forte carrure (avantage vs Agrippé, capacité de charge accrue)'
+    ]
   }
 ];

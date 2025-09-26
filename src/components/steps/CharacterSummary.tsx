@@ -87,6 +87,13 @@ const SKILL_ABILITY_MAP: Record<SkillName, keyof Record<string, number>> = {
   'Religion': 'Intelligence',
 };
 
+// Convertit ft -> m en arrondissant au 0,5 m (30 ft → 9 m)
+const feetToMeters = (ft?: number) => {
+  const n = Number(ft);
+  if (!Number.isFinite(n)) return 9; // fallback raisonnable
+  return Math.round(n * 0.3048 * 2) / 2;
+};
+
 export default function CharacterSummary({ 
   characterName, 
   onCharacterNameChange, 
@@ -231,7 +238,7 @@ export default function CharacterSummary({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Vitesse:</span>
-              <span className="text-white font-medium">{raceData?.speed || 30} ft</span>
+              <span className="text-white font-medium">{feetToMeters(raceData?.speed || 30)} m</span>
             </div>
           </CardContent>
         </Card>

@@ -15,7 +15,7 @@ export function calculateHitPoints(constitution: number, dndClass: DndClass, lev
     'Druide': 8,
     'Moine': 8,
     'Roublard': 8,
-    'Sorcier': 8,
+    'Occultiste': 8,
     'Ensorceleur': 6,
     'Magicien': 6
   };

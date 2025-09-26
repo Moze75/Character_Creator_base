@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Button from '../ui/Button';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Input from '../ui/Input';
-import { calculateHitPoints, calculateArmorClass, calculateModifier } from '../../utils/dndCalculations';
+import { calculateHitPoints, calculateArmorClass, calculateModifier, getProficiencyBonus } from '../../utils/dndCalculations';
 import { races } from '../../data/races';
 import { classes } from '../../data/classes';
 import { backgrounds } from '../../data/backgrounds';
 import { DndClass } from '../../types/character';
 import { User, Heart, Shield, Zap, Users, BookOpen } from 'lucide-react';
+import { CANONICAL_SKILLS, normalizeSkill, calculateSkillBonus } from '../../data/skills';
 
 interface CharacterSummaryProps {
   characterName: string;
@@ -15,7 +16,8 @@ interface CharacterSummaryProps {
   selectedRace: string;
   selectedClass: DndClass;
   selectedBackground: string;
-  abilities: Record<string, number>;
+  abilities: Record<string, number>; // déjà base + historique
+  selectedClassSkills: string[];      // normalisées
   onFinish: () => void;
   onPrevious: () => void;
 }
@@ -27,36 +29,48 @@ export default function CharacterSummary({
   selectedClass, 
   selectedBackground, 
   abilities, 
+  selectedClassSkills,
   onFinish, 
   onPrevious 
 }: CharacterSummaryProps) {
   const [nameError, setNameError] = useState('');
 
-  // Conversion pieds -> mètres (arrondi au 0,5 m)
-  const feetToMeters = (ft?: number) => {
-    if (!ft && ft !== 0) return '';
-    return Math.round(ft * 0.3048 * 2) / 2;
-  };
-
   const raceData = races.find(r => r.name === selectedRace);
   const classData = classes.find(c => c.name === selectedClass);
   const backgroundData = backgrounds.find(b => b.name === selectedBackground);
 
-  const finalAbilities = { ...abilities };
-  
-  if (raceData && raceData.abilityScoreIncrease) {
-    Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
-      if (finalAbilities[ability]) {
-        finalAbilities[ability] += bonus;
-      }
-    });
-  }
+  // Appliquer également les bonus raciaux sur les abilities passées
+  const finalAbilities = useMemo(() => {
+    const fa = { ...abilities };
+    if (raceData?.abilityScoreIncrease) {
+      Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
+        if (fa[ability] != null) fa[ability] += bonus;
+      });
+    }
+    return fa;
+  }, [abilities, raceData]);
 
   const hitPoints = calculateHitPoints(finalAbilities['Constitution'] || 10, selectedClass);
   const armorClass = calculateArmorClass(finalAbilities['Dextérité'] || 10);
   const initiative = calculateModifier(finalAbilities['Dextérité'] || 10);
 
-  const handleFinish = () => {
+  // Maîtrises issues de l'historique (normalisées)
+  const backgroundSkills = useMemo(() => {
+    const arr = backgroundData?.skillProficiencies ?? [];
+    return Array.from(new Set(arr.map(normalizeSkill)));
+  }, [backgroundData]);
+
+  // Maîtrises totales: union classe + historique (normalisées)
+  const proficientSet = useMemo(() => {
+    const set = new Set<string>();
+    selectedClassSkills.forEach((s) => set.add(normalizeSkill(s)));
+    backgroundSkills.forEach((s) => set.add(normalizeSkill(s)));
+    return set;
+  }, [selectedClassSkills, backgroundSkills]);
+
+  const proficiencyBonus = getProficiencyBonus(1);
+
+  const handleFinishClick = () => {
     if (!characterName.trim()) {
       setNameError('Le nom du personnage est requis');
       return;
@@ -135,7 +149,8 @@ export default function CharacterSummary({
             <div className="flex justify-between">
               <span className="text-gray-400">Vitesse:</span>
               <span className="text-white font-medium">
-                {feetToMeters(raceData?.speed || 30)} m
+                {/* Si vous êtes passé en mètres ailleurs, adaptez ici également */}
+                {races.find(r => r.name === selectedRace)?.speed ?? 30} ft
               </span>
             </div>
           </CardContent>
@@ -166,17 +181,48 @@ export default function CharacterSummary({
         </CardContent>
       </Card>
 
+      {/* Synthèse des compétences avec bonus */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center">
+            <Users className="w-5 h-5 text-purple-400 mr-2" />
+            <h3 className="text-lg font-semibold text-white">Compétences</h3>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-gray-400 mb-3">
+            Bonus de maîtrise: +{proficiencyBonus} | Maîtrises: classe + historique
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
+            {CANONICAL_SKILLS.map((skill) => {
+              const proficient = proficientSet.has(skill);
+              const bonus = calculateSkillBonus(skill, finalAbilities, proficient, proficiencyBonus);
+              const bonusText = `${bonus >= 0 ? '+' : ''}${bonus}`;
+              return (
+                <div key={skill} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-300">
+                    {skill}{' '}
+                    {proficient && <span className="text-xs text-red-400">[M]</span>}
+                  </span>
+                  <span className="text-white font-medium">{bonusText}</span>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <div className="flex items-center">
               <Users className="w-5 h-5 text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Traits </h3>
+              <h3 className="text-lg font-semibold text-white">Traits raciaux</h3>
             </div>
           </CardHeader>
           <CardContent>
             <ul className="text-gray-300 text-sm space-y-1">
-              {raceData?.traits?.map((trait, index) => (
+              {races.find(r => r.name === selectedRace)?.traits?.map((trait, index) => (
                 <li key={index}>• {trait}</li>
               )) || <li className="text-gray-500">Aucun trait racial disponible</li>}
             </ul>
@@ -209,7 +255,7 @@ export default function CharacterSummary({
           Précédent
         </Button>
         <Button
-          onClick={handleFinish}
+          onClick={handleFinishClick}
           size="lg"
           className="min-w-[200px]"
         >

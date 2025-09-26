@@ -1,14 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import Button from '../ui/Button';
 import Card, { CardContent, CardHeader } from '../ui/Card';
 import Input from '../ui/Input';
-import { calculateHitPoints, calculateArmorClass, calculateModifier, getProficiencyBonus } from '../../utils/dndCalculations';
+import { calculateHitPoints, calculateArmorClass, calculateModifier } from '../../utils/dndCalculations';
 import { races } from '../../data/races';
 import { classes } from '../../data/classes';
 import { backgrounds } from '../../data/backgrounds';
 import { DndClass } from '../../types/character';
-import { User, Heart, Shield, Zap, Users, BookOpen } from 'lucide-react';
-import { CANONICAL_SKILLS, normalizeSkill, calculateSkillBonus } from '../../data/skills';
+import { User, Heart, Shield, Zap, Users, BookOpen, Package } from 'lucide-react';
 
 interface CharacterSummaryProps {
   characterName: string;
@@ -16,8 +15,8 @@ interface CharacterSummaryProps {
   selectedRace: string;
   selectedClass: DndClass;
   selectedBackground: string;
-  abilities: Record<string, number>; // déjà base + historique
-  selectedClassSkills: string[];      // normalisées
+  selectedBackgroundEquipmentOption: 'A' | 'B' | '';
+  abilities: Record<string, number>;
   onFinish: () => void;
   onPrevious: () => void;
 }
@@ -27,9 +26,9 @@ export default function CharacterSummary({
   onCharacterNameChange, 
   selectedRace, 
   selectedClass, 
-  selectedBackground, 
+  selectedBackground,
+  selectedBackgroundEquipmentOption,
   abilities, 
-  selectedClassSkills,
   onFinish, 
   onPrevious 
 }: CharacterSummaryProps) {
@@ -39,38 +38,30 @@ export default function CharacterSummary({
   const classData = classes.find(c => c.name === selectedClass);
   const backgroundData = backgrounds.find(b => b.name === selectedBackground);
 
-  // Appliquer également les bonus raciaux sur les abilities passées
-  const finalAbilities = useMemo(() => {
-    const fa = { ...abilities };
-    if (raceData?.abilityScoreIncrease) {
-      Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
-        if (fa[ability] != null) fa[ability] += bonus;
-      });
-    }
-    return fa;
-  }, [abilities, raceData]);
+  const finalAbilities = { ...abilities };
+  
+  // Apply racial bonuses - with null check
+  if (raceData && raceData.abilityScoreIncrease) {
+    Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
+      if (finalAbilities[ability]) {
+        finalAbilities[ability] += bonus;
+      }
+    });
+  }
 
   const hitPoints = calculateHitPoints(finalAbilities['Constitution'] || 10, selectedClass);
   const armorClass = calculateArmorClass(finalAbilities['Dextérité'] || 10);
   const initiative = calculateModifier(finalAbilities['Dextérité'] || 10);
 
-  // Maîtrises issues de l'historique (normalisées)
-  const backgroundSkills = useMemo(() => {
-    const arr = backgroundData?.skillProficiencies ?? [];
-    return Array.from(new Set(arr.map(normalizeSkill)));
-  }, [backgroundData]);
+  // Récupération de l’équipement d’historique selon l’option choisie
+  const bgEquip =
+    selectedBackgroundEquipmentOption === 'A'
+      ? backgroundData?.equipmentOptions?.optionA ?? []
+      : selectedBackgroundEquipmentOption === 'B'
+        ? backgroundData?.equipmentOptions?.optionB ?? []
+        : [];
 
-  // Maîtrises totales: union classe + historique (normalisées)
-  const proficientSet = useMemo(() => {
-    const set = new Set<string>();
-    selectedClassSkills.forEach((s) => set.add(normalizeSkill(s)));
-    backgroundSkills.forEach((s) => set.add(normalizeSkill(s)));
-    return set;
-  }, [selectedClassSkills, backgroundSkills]);
-
-  const proficiencyBonus = getProficiencyBonus(1);
-
-  const handleFinishClick = () => {
+  const handleFinish = () => {
     if (!characterName.trim()) {
       setNameError('Le nom du personnage est requis');
       return;
@@ -148,10 +139,7 @@ export default function CharacterSummary({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Vitesse:</span>
-              <span className="text-white font-medium">
-                {/* Si vous êtes passé en mètres ailleurs, adaptez ici également */}
-                {races.find(r => r.name === selectedRace)?.speed ?? 30} ft
-              </span>
+              <span className="text-white font-medium">{raceData?.speed || 30} ft</span>
             </div>
           </CardContent>
         </Card>
@@ -159,9 +147,11 @@ export default function CharacterSummary({
 
       <Card>
         <CardHeader>
-          <div className="flex items-center">
-            <Zap className="w-5 h-5 text-yellow-400 mr-2" />
-            <h3 className="text-lg font-semibold text-white">Caractéristiques</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Zap className="w-5 h-5 text-yellow-400 mr-2" />
+              <h3 className="text-lg font-semibold text-white">Caractéristiques</h3>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -181,59 +171,40 @@ export default function CharacterSummary({
         </CardContent>
       </Card>
 
-      {/* Synthèse des compétences avec bonus */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center">
-            <Users className="w-5 h-5 text-purple-400 mr-2" />
-            <h3 className="text-lg font-semibold text-white">Compétences</h3>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-xs text-gray-400 mb-3">
-            Bonus de maîtrise: +{proficiencyBonus} | Maîtrises: classe + historique
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
-            {CANONICAL_SKILLS.map((skill) => {
-              const proficient = proficientSet.has(skill);
-              const bonus = calculateSkillBonus(skill, finalAbilities, proficient, proficiencyBonus);
-              const bonusText = `${bonus >= 0 ? '+' : ''}${bonus}`;
-              return (
-                <div key={skill} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-300">
-                    {skill}{' '}
-                    {proficient && <span className="text-xs text-red-400">[M]</span>}
-                  </span>
-                  <span className="text-white font-medium">{bonusText}</span>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Traits raciaux + espèce */}
         <Card>
           <CardHeader>
-            <div className="flex items-center">
-              <Users className="w-5 h-5 text-purple-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Traits </h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Users className="w-5 h-5 text-purple-400 mr-2" />
+                <h3 className="text-lg font-semibold text-white">Traits</h3>
+              </div>
+              <div className="text-xs text-gray-400">
+                Espèce: <span className="text-gray-200">{selectedRace}</span>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
             <ul className="text-gray-300 text-sm space-y-1">
-              {races.find(r => r.name === selectedRace)?.traits?.map((trait, index) => (
+              {raceData?.traits?.map((trait, index) => (
                 <li key={index}>• {trait}</li>
-              )) || <li className="text-gray-500">Aucun trait racial disponible</li>}
+              )) || <li className="text-gray-500">Aucun trait disponible</li>}
             </ul>
           </CardContent>
         </Card>
 
+        {/* Capacités de classe + classe choisie */}
         <Card>
           <CardHeader>
-            <div className="flex items-center">
-              <BookOpen className="w-5 h-5 text-green-400 mr-2" />
-              <h3 className="text-lg font-semibold text-white">Capacités de classe</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <BookOpen className="w-5 h-5 text-green-400 mr-2" />
+                <h3 className="text-lg font-semibold text-white">Capacités de classe</h3>
+              </div>
+              <div className="text-xs text-gray-400">
+                Classe: <span className="text-gray-200">{selectedClass}</span>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -246,6 +217,38 @@ export default function CharacterSummary({
         </Card>
       </div>
 
+      {/* Équipement de départ (classe + historique) */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center">
+            <Package className="w-5 h-5 text-yellow-400 mr-2" />
+            <h3 className="text-lg font-semibold text-white">Équipement de départ</h3>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-white mb-2">De classe</h4>
+              <ul className="text-gray-300 text-sm space-y-1">
+                {classData?.equipment?.map((item, i) => (
+                  <li key={`class-eq-${i}`}>• {item}</li>
+                )) || <li className="text-gray-500">—</li>}
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">
+                D’historique {selectedBackgroundEquipmentOption ? `(Option ${selectedBackgroundEquipmentOption})` : ''}
+              </h4>
+              <ul className="text-gray-300 text-sm space-y-1">
+                {bgEquip.length > 0
+                  ? bgEquip.map((item, i) => <li key={`bg-eq-${i}`}>• {item}</li>)
+                  : <li className="text-gray-500">Aucune option sélectionnée</li>}
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex justify-between pt-6">
         <Button
           onClick={onPrevious}
@@ -255,7 +258,7 @@ export default function CharacterSummary({
           Précédent
         </Button>
         <Button
-          onClick={handleFinishClick}
+          onClick={handleFinish}
           size="lg"
           className="min-w-[200px]"
         >

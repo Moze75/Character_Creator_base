@@ -12,9 +12,9 @@ interface ClassSelectionProps {
   onNext: () => void;
   onPrevious: () => void;
 
-  // Nouveau: compétences choisies pour la classe (normalisées)
-  selectedSkills: string[];
-  onSelectedSkillsChange: (skills: string[]) => void;
+  // Désormais optionnels pour éviter les crashes si non branchés depuis le Wizard
+  selectedSkills?: string[];
+  onSelectedSkillsChange?: (skills: string[]) => void;
 }
 
 const ClassSelection: React.FC<ClassSelectionProps> = ({
@@ -22,8 +22,8 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
   onClassSelect,
   onNext,
   onPrevious,
-  selectedSkills,
-  onSelectedSkillsChange,
+  selectedSkills = [],                // fallback sûr
+  onSelectedSkillsChange = () => {},  // no-op sûr
 }) => {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -107,7 +107,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
           const imageSrc = imageBase ? `/${imageBase}.png` : null;
 
           const limit = dndClass.skillsToChoose ?? 0;
-          const chosenCount = selectedClass === dndClass.name ? selectedSkills.length : 0;
+          const chosenCount = selectedClass === dndClass.name ? (selectedSkills?.length || 0) : 0;
 
           return (
             <Card
@@ -144,9 +144,10 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                   </div>
                 </div>
 
+                {/* Déplié */}
                 {isExpanded && (
                   <div className="mt-4 border-t border-gray-700/50 pt-4 animate-fade-in">
-                    {/* Image */}
+                    {/* Image fluide */}
                     {imageSrc && (
                       <div className="mb-4">
                         <img
@@ -158,7 +159,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                       </div>
                     )}
 
-                    {/* Choix des compétences (checkboxes) */}
+                    {/* Choix des compétences */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium text-white">Compétences disponibles</h4>
@@ -167,14 +168,14 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                         </span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {dndClass.availableSkills.map((raw, idx) => {
+                        {(dndClass.availableSkills ?? []).map((raw, idx) => {
                           const label = normalizeSkill(raw);
                           const isChecked =
-                            selectedClass === dndClass.name && selectedSkills.includes(label);
+                            selectedClass === dndClass.name && selectedSkills?.includes(label);
                           const disableCheck =
                             selectedClass === dndClass.name &&
                             !isChecked &&
-                            selectedSkills.length >= limit;
+                            (selectedSkills?.length || 0) >= limit;
 
                           return (
                             <button
@@ -206,7 +207,7 @@ const ClassSelection: React.FC<ClassSelectionProps> = ({
                     <div className="mb-4">
                       <h4 className="font-medium text-white mb-2">Équipement de départ</h4>
                       <ul className="text-gray-300 text-sm space-y-1">
-                        {dndClass.equipment.map((item, index) => (
+                        {(dndClass.equipment ?? []).map((item, index) => (
                           <li key={index}>• {item}</li>
                         ))}
                       </ul>

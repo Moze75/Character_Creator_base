@@ -241,7 +241,7 @@ export default function CharacterCreationWizard() {
               Créez votre personnage
             </h1>
             <p className="text-gray-400">
-              Créez votre héros pour vos aventures dans les Donjons et Dragons
+              Choisissez vite mais choisissez bien !
             </p>
           </div>
 

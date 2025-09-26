@@ -38,8 +38,8 @@ export default function CharacterSummary({
 
   const finalAbilities = { ...abilities };
   
-  // Apply racial bonuses
-  if (raceData) {
+  // Apply racial bonuses - with null check
+  if (raceData && raceData.abilityScoreIncrease) {
     Object.entries(raceData.abilityScoreIncrease).forEach(([ability, bonus]) => {
       if (finalAbilities[ability]) {
         finalAbilities[ability] += bonus;
@@ -144,7 +144,7 @@ export default function CharacterSummary({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {Object.entries(finalAbilities).map(([ability, score]) => (
+            {Object.entries(finalAbilities || {}).map(([ability, score]) => (
               <div key={ability} className="text-center">
                 <div className="ability-score">
                   <div className="font-medium text-white text-sm">{ability}</div>
@@ -169,9 +169,9 @@ export default function CharacterSummary({
           </CardHeader>
           <CardContent>
             <ul className="text-gray-300 text-sm space-y-1">
-              {raceData?.traits.map((trait, index) => (
+              {raceData?.traits?.map((trait, index) => (
                 <li key={index}>• {trait}</li>
-              ))}
+              )) || <li className="text-gray-500">Aucun trait racial disponible</li>}
             </ul>
           </CardContent>
         </Card>
@@ -185,9 +185,9 @@ export default function CharacterSummary({
           </CardHeader>
           <CardContent>
             <ul className="text-gray-300 text-sm space-y-1">
-              {classData?.features.map((feature, index) => (
+              {classData?.features?.map((feature, index) => (
                 <li key={index}>• {feature}</li>
-              ))}
+              )) || <li className="text-gray-500">Aucune capacité de classe disponible</li>}
             </ul>
           </CardContent>
         </Card>

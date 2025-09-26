@@ -15,6 +15,7 @@ import { classes } from '../data/classes';
 const steps = [
   'Race',
   'Classe',
+  'Sous-classe',
   'Caractéristiques',
   'Historique',
   'Résumé'
